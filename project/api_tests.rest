@@ -1,0 +1,75 @@
+# API Testing with REST Client (VS Code)
+# This file allows you to verify your microservices manually.
+
+@gateway_url = http://localhost:3000
+@auth_url = http://localhost:3001
+@target_email = user@example.com
+@target_password = SecurePassword123
+
+### 
+### 1. HEALTH CHECK: GATEWAY (The "Front Door")
+GET {{gateway_url}}/health
+Content-Type: application/json
+
+### 
+### 2. HEALTH CHECK: AUTH SERVICE (The "Backbone")
+GET {{auth_url}}/health
+Content-Type: application/json
+
+### 
+### 3. SIGNUP (Creates a real user in Neon PostgreSQL)
+# @name signup
+POST {{auth_url}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+    "email": "{{target_email}}",
+    "password": "{{target_password}}",
+    "name": "Jane Doe"
+}
+
+### 
+### 4. LOGIN (Returns a JWT token)
+# @name login
+POST {{auth_url}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{target_email}}",
+    "password": "{{target_password}}"
+}
+
+### 
+### 5. EXTRACT TOKEN (Requires running Step 4 first)
+@token = {{login.response.body.token}}
+
+### 
+### 6. GET ME (Caches profile in Redis after the first request)
+GET {{auth_url}}/api/v1/auth/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### 
+### 7. CREATE RAZORPAY ORDER (Razorpay Integration)
+POST {{gateway_url}}/api/v1/payments/create-order
+Content-Type: application/json
+
+{
+    "amount": 500,
+    "currency": "INR",
+    "receipt": "order_rcpt_11"
+}
+
+### 
+### 8. FILE UPLOAD (Media Service - Multer + Cloudinary)
+# Replace with a real local file path if testing via VS Code REST Client
+POST {{gateway_url}}/api/v1/media/upload
+Content-Type: multipart/form-data
+Authorization: Bearer {{token}}
+
+--boundary
+Content-Disposition: form-data; name="image"; filename="profile.jpg"
+Content-Type: image/jpeg
+
+< ./path/to/test-image.jpg
+--boundary--

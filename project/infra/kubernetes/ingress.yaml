@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: main-ingress
+  annotations:
+    # NGINX Ingress Controller specific annotations
+    # These help with SSL termination, rate limiting, etc.
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false" # In production, set to true
+    # Rate Limiting (Production essential)
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+spec:
+  rules:
+  - host: api.myapp.com # The public domain name
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 80

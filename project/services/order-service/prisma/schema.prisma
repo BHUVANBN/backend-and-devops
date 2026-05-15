@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Order Model: Source of truth for all purchases
+model Order {
+  id        String   @id @default(uuid())
+  userId    String   // FK to User in Auth service
+  amount    Decimal  
+  status    String   @default("PENDING") // PENDING, PAID, FAILED, SHIPPED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,56 @@
+
+AWS (Amazon Web Services)
+- Cloud platform providing on-demand compute, storage, databases, networking, security, monitoring, and deployment tooling.
+- Common architecture pattern: VPC (network) + EC2 (app) + RDS (DB) + ALB (entrypoint) + security controls.
+
+Services covered in this course/project
+- EC2 (Elastic Compute Cloud)
+  - Virtual servers to run applications (here: Node.js app + Nginx reverse proxy).
+  - Access via SSH key pairs; controlled by Security Groups.
+
+- RDS (Relational Database Service)
+  - Managed PostgreSQL database.
+  - Exposes an endpoint; best practice is to disable public access and allow connections only from app layer.
+
+- VPC (Virtual Private Cloud)
+  - Private network boundary for AWS resources (EC2, RDS, ALB).
+  - Subnets across multiple Availability Zones improve availability.
+
+- Security Groups
+  - Stateful firewall rules for EC2/ALB/RDS.
+  - Typical pattern:
+    - ALB SG: allow 80/443 from internet
+    - EC2 SG: allow app port only from ALB SG
+    - RDS SG: allow 5432 only from EC2 SG
+
+- ALB (Application Load Balancer)
+  - Routes HTTP/HTTPS traffic to targets (EC2) via target groups.
+  - Supports health checks, better fault tolerance, and scaling.
+
+- ACM (AWS Certificate Manager)
+  - Manages TLS certificates for HTTPS on the ALB.
+
+- WAF (Web Application Firewall)
+  - Can attach to ALB to filter/block malicious web traffic.
+
+Extra/production-grade topics mentioned
+- S3 (Simple Storage Service)
+  - Object storage for backups and CI/CD artifacts.
+
+- Lambda
+  - Serverless functions for automation (e.g., scheduled backup workflows).
+
+- CloudWatch
+  - Metrics/logs/alarms (CPU, errors, DB connection issues, etc.).
+
+- SNS (Simple Notification Service)
+  - Notifications; often used to deliver CloudWatch alarms to email/Slack.
+
+- CodeDeploy
+  - Deploys app revisions to EC2/Auto Scaling Groups.
+
+- Auto Scaling (ASG)
+  - Automatically adjusts number of EC2 instances based on load; commonly paired with ALB.
+
+- AWS SDK for JavaScript
+  - Programmatic access to AWS services from Node.js (S3, EC2, RDS snapshots, SNS, etc.).

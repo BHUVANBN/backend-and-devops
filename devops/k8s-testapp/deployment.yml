@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+  namespace: my-namespace
+spec:
+  replicas: 3
+  selector: #selects the pods that this deployment manages
+    matchLabels:
+      app: my-app
+  template: #creating pod template so deployment can create pods
+    metadata:
+      name: my-pod-template
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-container
+          image: nginx
+          ports:
+            - containerPort: 80

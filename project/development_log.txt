@@ -1,0 +1,190 @@
+[STEP 01]
+Title: System Architecture Design
+Purpose:
+Define the high-level architecture for the production-ready microservices application.
+
+Files created:
+- architecture_design.md (in artifacts)
+
+Outcome:
+A clear blueprint of the system, services, and communication patterns is established.
+
+[STEP 02]
+Title: Repository Structure
+Purpose:
+Set up the monorepo-style skeleton for services and infrastructure.
+
+Files/Folders created:
+- services/ (auth, api-gateway, order, payment, media)
+- infra/ (kubernetes, docker, nginx)
+- shared/
+- package.json
+
+Outcome:
+Project skeleton prepared for parallel development of services.
+
+[STEP 03]
+Title: Auth Service Foundation
+Purpose:
+Setup basic Express app for Auth Service with JWT utility and health check.
+
+Files created:
+- services/auth-service/src (index, server, controllers, routes, utils)
+- services/auth-service/.env
+
+Outcome:
+Auth Service is initialized and capable of issuing JWTs.
+
+[STEP 04]
+Title: Database Integration (Prisma & Neon)
+Purpose:
+Connect Auth Service to PostgreSQL using Prisma ORM.
+
+Files created:
+- services/auth-service/prisma/schema.prisma
+- services/auth-service/src/config/db.js
+- services/auth-service/src/controllers/authController.js (Updated with real DB logic)
+
+Outcome:
+Auth Service now supports real Signup and Login with persisted data in PostgreSQL.
+
+[STEP 05]
+Title: Messaging with Kafka
+Purpose:
+Implement event-driven communication to decouple microservices.
+
+Files created:
+- services/auth-service/src/config/kafka.js
+- services/auth-service/src/utils/producer.js
+- services/auth-service/src/controllers/authController.js (Updated with Kafka emitting)
+
+Outcome:
+Auth Service now emits a 'USER_CREATED' event upon successful registration, enabling cross-service workflows.
+
+[STEP 06]
+Title: Redis Caching
+Purpose:
+Improve system performance by reducing database load for frequently accessed data.
+
+Files created:
+- services/auth-service/src/config/redis.js
+- services/auth-service/src/utils/cache.js
+- services/auth-service/src/controllers/authController.js (Updated with getMe caching)
+
+Outcome:
+User profile requests are now cached in Redis, providing faster response times and lowering PostgreSQL query costs.
+
+[STEP 07]
+Title: External Integrations (Cloudinary & Stripe)
+Purpose:
+Enable file storage and payment processing via industry-standard third-party providers.
+
+Files created:
+- services/media-service/src (Cloudinary config, Multer middleware, Media controller)
+- services/payment-service/src (Stripe config, Payment controller)
+
+Outcome:
+Media Service is ready for file uploads, and Payment Service is ready for processing transactions.
+
+[STEP 08]
+Title: Dockerization (Consistent Environments)
+Purpose:
+Package each microservice into a container image to ensure consistency across dev, test, and prod.
+
+Files created:
+- Dockerfile (per service: api-gateway, auth, media, payment)
+- docker-compose.yaml (Root orchestration)
+
+Outcome:
+The entire microservices stack (services, Kafka, Redis, Zookeeper) can now be spun up with a single command: 'docker-compose up'.
+
+[STEP 09]
+Title: Kubernetes manifests
+Purpose:
+Configure production-ready orchestration for each service using Kubernetes resources.
+
+Files created:
+- infra/kubernetes/auth-service.yaml
+- infra/kubernetes/api-gateway.yaml
+- infra/kubernetes/payment-service.yaml
+- infra/kubernetes/media-service.yaml
+- infra/kubernetes/configmap.yaml
+- infra/kubernetes/secrets.yaml
+
+Outcome:
+System is ready for deployment to any Kubernetes-compliant cloud (AWS EKS, GKE, etc.) with high availability and health checks.
+
+[STEP 10]
+Title: Nginx Configuration (The Gateway of Gateways)
+Purpose:
+Establish the public entry point for our system, handling routing, SSL, and rate limiting.
+
+Files created:
+- infra/kubernetes/ingress.yaml
+- infra/nginx/nginx.conf
+
+Outcome:
+The microservices fleet is now behind a robust, highly-configurable proxy layer that isolates our internal network from the public internet.
+
+[STEP 11]
+Title: CI/CD Pipeline (Automated Delivery)
+Purpose:
+Eliminate manual deployment errors and automate the build/push/deploy cycles.
+
+Files created:
+- .github/workflows/main.yml
+
+Outcome:
+Every push to the main branch now triggers an automatic parallel build of all service Docker images, pushing them to a container registry and preparing for automated Kubernetes deployment.
+
+[STEP 12]
+Title: AWS Deployment (Infrastructure Provisioning)
+Purpose:
+Bring our distributed system into the AWS cloud using Managed Kubernetes (EKS).
+
+Files created:
+- infra/aws_deployment_guide.md
+
+Outcome:
+The system is ready to be provisioned on Amazon EKS with a highly-available managed node group and a public Load Balancer (ALB) via Ingress.
+
+[STEP 13]
+Title: Load Balancing and Autoscaling (Elasticity)
+Purpose:
+Ensure the system handles traffic spikes automatically without manual intervention.
+
+Files created:
+- infra/kubernetes/hpa.yaml
+
+Outcome:
+Horizontal Pod Autoscaling (HPA) is now defined for our core services (Auth, API Gateway), allowing the cluster to expand or contract based on real-time resource usage (CPU/Memory).
+
+[STEP 14]
+Title: Final Production and API Verification
+Purpose:
+Document architectural standards and provide tools for manual testing.
+
+Files created:
+- production_cheatsheet.md
+- api_tests.rest
+
+Outcome:
+The complete, production-ready microservices system is fully architected, containerized, and documented.
+
+[STEP 15]
+Title: Frontend Implementation & 100% Completion
+Purpose:
+Build the user interface and realize the full microservices end-to-end flow.
+
+Files created:
+- services/frontend (Express Server + Dashboard UI)
+- services/order-service (Core implementation + Kafka)
+- services/auth-service (OAuth Strategy Logic)
+
+Outcome:
+The project is 100% COMPLETE. Users can now:
+1. Sign up / Log in (Auth Service)
+2. Place orders (Order Service -> Kafka Event)
+3. Process payments (Payment Service -> Stripe)
+4. Upload assets (Media Service -> Cloudinary)
+5. Manage everything via a beautiful dashboard (Frontend).

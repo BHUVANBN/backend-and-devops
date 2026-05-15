@@ -1,0 +1,174 @@
+Docker - Used to contain every dependencies and application in a container
+         It makes Application Portable by sharing Docker Image
+         Light weight compared to iso files
+Docker Image - Executable file to build container
+         Blueprint to create containers
+         System Resources are utilised by containers not the docker file
+
+eg: sudo docker run -it ubuntu       //fetches the ubuntu image from docker.com and creates a container
+                                     //this container is completely isolated from the system OS
+                                     // -it stands for interactive mode i.e access its terminal
+            
+Docker setup - install Docker 
+sudo apt install docker-ce docker-ce-cli containerd.io -y
+
+Docker hub - website which contains all the docker images
+
+Docker commands
+
+sudo docker pull image_name                             //get docker image
+sudo docker pull image:verion                           //pulls the specific version of an image
+sudo docker images                                      //list of images
+sudo docker run image_name                              //pull image and creates container from image
+sudo docker run -it ubuntu                              // -it stands for interactive mode i.e access its terminal
+sudo docker run -d image_name                           //runs image in detached mode i.e in background
+sudo docker run --name custom_name image_name           //custom name for the container
+sudo docker ps -a                                       //lists all containers
+sudo docker ps                                          //lists all running containers
+sudo docker system df                                   //space taken by images, Containers, Volumes, Build cache
+sudo docker stop container_id/container_name            //stops the running container
+sudo docker start container_id/container_name           //restarts the exited container
+sudo docker start -ai container_id/container_name       //restarts the exited container in interactive mode
+sudo docker rm container_id/container_name              //removes the containers
+sudo docker rmi image_name                              //removes image
+sudo docker logs container_id/container_name            //logs of the container
+sudo docker exec -it container_id/container_name /bin/bash //executes command in the container
+
+how container in created from image?
+Docker client ----> Docker daemon ----> pulls image from docker hub and creates container
+
+docker images is built in layers
+different versions of images have some common layers
+
+port binding 
+by default each container has its own port binding
+we can map ports of container to ports of host
+sudo docker run -p 80:80 image_name   //-p host_port:container_port
+
+docker network - connection between containers
+sudo docker network ls                //lists all networks
+sudo docker network create my_network
+sudo docker run --network my_network --name container1 image_name //to run container in a specific network
+sudo docker run --network my_network --name container2 image_name //to run container in a specific network
+
+types of network 
+    bridge - default network, used for communication between containers on the same host
+    host - no isolation between container and host, uses same network interface as host
+    none - no network stack, isolated container, no interaction between host or other containers
+    overlay - used for communication between containers on different hosts
+
+
+eg: sudo docker network create my_network
+    sudo docker run -d -p 27017:27017 --network my_network --name db -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password mongo
+    // -e for environment variables
+
+    sudo docker run -d -p 8081:8081 \
+    --network my_network --name mongo-express \
+    -e ME_CONFIG_MONGODB_ADMINUSERNAME=admin \
+    -e ME_CONFIG_MONGODB_ADMINPASSWORD=password \
+    -e ME_CONFIG_MONGODB_URL="mongodb://admin:password@db:27017" \
+    mongo-express 
+    //interface to connect db
+
+    sudo docker run --network my_network --name app nodejs
+________________________________________________________________________________________________________________
+docker compose - a tool for defining and running multi-container Docker applications
+    .yaml file is used to define and run multiple containers
+    
+    sudo docker run -d -p 27017:27017 --network my_network --name db -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password mongo
+    //the above command can be written in compose.yml as
+    
+    compose.yml
+    ____________________________________________________________
+    version: "3.8"
+    services:
+    db:    //service name
+        image: mongo:latest
+        container_name: db
+        restart: unless-stopped
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: admin
+            MONGO_INITDB_ROOT_PASSWORD: password
+        ports:
+            - "27017:27017"
+        networks:
+            - my_network
+        volumes:
+            - mongo_data:/data/db  //named vol: Prevents data loss when container stops
+
+    mongo-express:
+        image: mongo-express:latest
+        container_name: mongo-express
+        restart: unless-stopped
+        environment:
+            ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+            ME_CONFIG_MONGODB_ADMINPASSWORD: password
+            ME_CONFIG_MONGODB_SERVER: db
+        ports:
+            - "8081:8081"
+        depends_on:  //Ensures Mongo starts before mongo-express
+            - db
+        networks:
+            - my_network
+
+    networks:
+    my_network:
+
+    volumes:
+    mongo_data:
+    ____________________________________________________________
+
+docker compose -f compose.yml up -d      //to run containers in background
+docker compose -f compose.yml down       //to stop and remove containers
+________________________________________________________________________________________________________________
+dockerising application
+coverting any application into docker image
+Dockerfile - a Blueprint to create docker image
+
+FROM <image_name>:<tag> - base image
+WORKDIR <path> - set working directory
+COPY <source> <destination> - copy files from host to container
+RUN <command> - install dependencies
+ENV <key>=<value> - set environment variables
+EXPOSE <port> - port
+CMD <command> - command to run, used to run the application after completion of all above steps
+
+eg:
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]
+
+to build 
+docker build -t <image_name>:<tag> .
+to run 
+docker run dapp:2.0 
+docker run -it dapp:2.0 sh  //interactive mode
+________________________________________________________________________________________________________________
+publish docker image on docker hub
+step 1: sign up on docker hub
+step 2: docker login
+step 3: create repository
+step 4: docker build -t <docker_hub_username>/<image_name> .  //build docker image 
+step 5: docker login  //login via terminal
+step 6: docker push <docker_hub_username>/<image_name>:<tag>
+________________________________________________________________________________________________________________
+docker Volumes
+by default data is lost after restarting the container
+to persist data we use volumes
+to mount the data volume to the container
+    docker run -v <volume_name>:<container_path> <image_name>
+    eg:
+        docker run -v /home/batman/data:/app/data node:18-alpine
+
+    creating named volume 
+        docker volume create my_volume
+        docker run -v my_volume:/app/data node:18-alpine  //docker creates volume named my_volume in /var/lib/docker/volumes
+        docker run -v /home/batman/data:/app/data node:18-alpine  //bind mount
+    remove volume 
+        docker volume rm my_volume
+    remove unused volume / not connected to any container
+        docker volume prune

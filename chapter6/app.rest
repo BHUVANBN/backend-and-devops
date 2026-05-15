@@ -1,0 +1,36 @@
+### get /
+GET http://localhost:3000
+
+
+### post /auth/register
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{   
+    "name" : "batman",
+    "email" : "batman@gmail.com",
+    "password":"123456"
+}
+
+### post /auth/login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "email" : "bhuvanbn01@gmail.com",
+    "password":"123456"
+}
+
+### post /auth/logout
+POST http://localhost:3000/auth/logout
+
+### post /watchlist
+POST http://localhost:3000/watchlist/
+Content-Type: application/json
+
+{
+    "movieId": "48d5a71d-4416-466a-9db1-eadfb4a62a09",
+    "status": "PLANNED",
+    "rating": 5,
+    "notes": "I want to watch this movie"
+}

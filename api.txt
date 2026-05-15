@@ -1,0 +1,67 @@
+Designing API
+Contract Driven API Development
+step 1 : design Contract (documentation)
+    eg: /todo
+        - Get request
+          desc : Returns all the todos
+          response structure : {todo : todo[]}
+        - post request
+          desc : Creates a new todo
+          request structure : {title : string, description : string}
+          response structure : {todo : todo}
+          status code : 201
+        - put request
+          desc : Updates a todo
+          request structure : {title : string, description : string}
+          response structure : {todo : todo}
+          status code : 200
+        - delete request
+          desc : Deletes a todo
+          response structure : {todo : todo}
+          status code : 200
+step 2 : implement Contract
+
+OpenApi Driven API design
+openapi: 3.0.0
+
+info:
+  title: User API
+  version: 1.0.0
+
+paths:
+
+  /users:
+    post:
+      summary: Create a user
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+
+            schema:
+              type: object
+
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+
+      responses:
+        "201":
+          description: User created
+
+          content:
+            application/json:
+              schema:
+                type: object
+
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string

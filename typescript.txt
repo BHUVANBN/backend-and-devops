@@ -1,0 +1,211 @@
+TypeScript is a superset of JavaScript that adds static types, which can help catch errors early and improve code quality. 
+its a programming language that builds on JavaScript by adding static type definitions. 
+
+static typing - uses data types
+TypeScript --> Typescript compiler --> JavaScript
+
+install TypeScript globally:    npm install -g typescript
+to check TypeScript version:    tsc -v
+to compile TypeScript to JavaScript:    tsc typescript.ts
+to run the compiled JavaScript: node typescript.js
+
+structuring a project:
+folder structure:
+- src/ (source files)
+- dist/ (compiled files)
+
+tsc --init // creates a tsconfig.json file
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    // File Layout
+    "rootDir": "./src",
+    "outDir": "./dist",
+    ....
+  }
+}
+now compile the tsx file : tsc
+run the compiled JavaScript: node dist/typescript.js
+_____________________________________________________________________________________________________________________________________
+types in TypeScript:
+syntax:
+  let variableName: type = value;
+
+Type Annotations in TypeScript:
+Type annotations in TypeScript are used to explicitly define the types of variables, function parameters, and return values. 
+This helps the TypeScript compiler catch type-related errors during development, improving code quality and maintainability.
+
+// Example of type annotations in TypeScript
+let message: string = "Hello, TypeScript!";
+let count: number = 42;
+let isActive: boolean = true;
+
+// Function with type annotations
+function add(a: number, b: number): number {
+  return a + b;
+}
+_____________________________________________________________________________________________________________________________________
+1. Primitive Types (also in JavaScript)
+* `string` – text values
+* `number` – integers, floats, NaN
+* `boolean` – true/false
+* `null` – empty value
+* `undefined` – unassigned value
+* `symbol` – unique identifiers
+* `bigint` – large integers beyond `Number.MAX_SAFE_INTEGER`
+_____________________________________________________________________________________________________________________________________
+2. Special Types (TS-specific handling)
+* `any` – disables type checking (escape hatch)
+  eg:
+    let data: any = "Hello"; // can be anything, no type safety
+
+* `unknown` – like `any` but forces type checking before use
+  eg:
+    let value: unknown = "Hello"; // must check type before using
+
+* `never` – represents values that never occur (e.g., functions that throw)
+  eg:
+    function error(message: string): never {
+      throw new Error(message); // never returns a value, because it always throws an error
+    }
+* `void` – no return value (used for functions)
+  eg:
+    function log(message: string): void {
+      console.log(message); // no return value
+    }
+void = “returns nothing, but will finish execution.”
+never = “will not finish execution normally at all.”
+_____________________________________________________________________________________________________________________________________
+3. Object Types
+* `Object`
+eg:
+  let person: { name: string; age: number } = { name: "Alice", age: 30 };
+
+* `Array<type>` or `type[]` – typed arrays
+  eg:
+    let numbers: number[] = [1, 2, 3]; // array of numbers
+    let strings: Array<string> = ["a", "b", "c"]; // array of strings  
+  Array<Array<string>> // vs string[][] — the first is sometimes more explicit
+
+* `Function`
+  eg: 
+    function add(x: number, y: number): number {
+      return x + y; // returns a number
+    }
+  eg: function with Optional Parameters (using `?`)
+    function greet(name: string, age?: number): void {
+      if (age) {
+        console.log(`Hello, ${name}! You are ${age} years old.`);
+      } else {
+        console.log(`Hello, ${name}!`);
+      }
+    }
+  eg: function with default Parameters
+    function multiply(x: number, y: number = 1): number {
+      return x * y; // y defaults to 1 if not provided
+    }
+  eg: function with Rest Parameters
+    function sum(...numbers: number[]): number {  //can pass any number of arguments, that will be treated as an array
+                                                  //using spread operator(...) to collect all arguments into an array
+      return numbers.reduce((acc, num) => acc + num, 0); // sums all numbers
+    }
+    //reduce function:
+    array.reduce((accumulator, currentValue, index, array) => {
+    // return the new accumulator value
+    }, initialValue);
+
+  eg: arrow function with type annotation
+    const square :(x: number) => number = (x) => x * x; // :(x: number) => number
+
+  eg: anonymous function with type annotation
+    const add: (x: number, y: number) => number = function(x, y) {
+      return x + y; // returns a number
+    };
+    
+* Tuples – fixed-length, ordered arrays with specific types (e.g., `[string, number]`)
+  eg:
+    let person: [string, number] = ["Alice", 30]; // tuple with string and number
+    let mixed: [string, number, boolean] = ["Bob", 25, true]; // tuple with multiple types
+_____________________________________________________________________________________________________________________________________
+4. Type Modifiers
+* `|` (Union) – value can be one of multiple types (`string | number`)
+   eg:
+    let id: string | number = "123"; // can be either string or number
+    id = 456; // now it's a number
+
+  literal types:
+    let direction: "left" | "right" = "left"; // can only be "left" or "right"
+    direction = "right"; // valid
+    // direction = "up"; // error: not assignable to type '"left" | "right"'
+
+  nullable types:
+    let value: string | null = null; // can be string or null
+    value = "Hello"; // now it's a string
+    value = null; // valid
+  
+* `&` (Intersection) – combine multiple types into one
+  eg:
+    interface Person {
+      name: string;
+      age: number;
+    }
+    interface Employee {
+      id: number;
+      position: string;
+    }
+    type Worker = Person & Employee; // combines both interfaces
+    let worker: Worker = {
+      name: "Alice",
+      age: 30,
+      id: 1,
+      position: "Developer"
+    };
+
+* `as` (Type Assertion) – tell the compiler to treat a value as a specific type
+                          used when value is unknown or any, and you know its type
+  eg:
+    let someValue: any = "Hello, TypeScript!";
+    let strLength: number = (someValue as string).length; // assert `someValue` as string
+
+* `?` (Optional) – property or param may be undefined
+  eg:
+    interface User {
+      name: string;
+      age?: number; // age is optional
+    }
+    let user: User = { name: "Alice" }; // valid, age can be omitted
+
+* `readonly` – prevents reassignment of properties
+  eg:
+    interface Point {
+      readonly x: number; // x cannot be changed
+      y: number;
+    }
+    let point: Point = { x: 10, y: 20 }; //assigned only once
+    // point.x = 15; // error: cannot assign to 'x' because it is a read-only property
+    point.y = 25; // valid, y can be changed
+  const → applies to variables (the binding can’t be reassigned)
+  readonly → applies to properties inside objects/classes/arrays (those keys can’t be reassigned after the object is created)
+_____________________________________________________________________________________________________________________________________
+5. Custom Type Constructs
+* `type` – alias for a custom type
+  eg:
+    type ID = string | number; // creates a type alias for string or number
+    let userId: ID = "abc123"; // can be either string or number
+    userId = 456; // now it's a number
+
+* `interface` – define object shapes and contracts
+* `enum` – named constants (numeric or string)
+* `class` – with typed properties & methods
+* Generics – reusable type placeholders (`<T>`)
+
+6. Utility & Advanced Types** *(built-in helpers)
+* `Partial<T>` – all properties optional
+* `Required<T>` – all properties required
+* `Readonly<T>` – all properties read-only
+* `Pick<T, K>` – select specific properties
+* `Omit<T, K>` – exclude specific properties
+* `Record<K, T>` – object with keys of type `K` and values of type `T`
+
+
+

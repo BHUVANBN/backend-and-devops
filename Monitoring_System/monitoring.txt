@@ -1,0 +1,47 @@
+Monitoring System consist of 
+Metrices - values that can be measured, Prometheus is used for this
+          eg: cpu usage, memory usage, disk usage, network usage
+steps:
+
+prometheus: used to collect metrics from applications
+  npm i prom-client  // install prometheus client
+
+  const collectDefaultMetrics = client.collectDefaultMetrics; 
+  collectDefaultMetrics({register: client.register}); // Register the metrics
+  
+  app.get("/metrics", async (req, res) => {
+    res.setHeader("Content-Type", client.register.contentType);
+    res.send(await client.register.metrics()); // Send the metrics
+  })
+  
+  setup prometheus server in docker
+  prometheus server will scrape the metrics from /metrics endpoint
+  this server runs on port 9090
+
+  prometheusConfig.yml
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+      - job_name: "node-exporter"
+        static_configs:
+          - targets: ["localhost:3000"]
+
+  docker-compose.yml
+    services:
+        prometheus:
+            image: prom/prometheus
+            ports:
+                - "9090:9090"
+            volumes:
+                - ./prometheusConfig.yml:/etc/prometheus/prometheus.yml
+  
+grafana: used to visualize the metrics from prometheus
+    services:
+        grafana:
+            image: grafana/grafana
+            ports:
+                - "3000:3000"
+            volumes:
+                - ./grafanaConfig.yml:/etc/grafana/grafana.ini
+  
+Log Collection - collect logs from all sources

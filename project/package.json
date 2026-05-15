@@ -1,0 +1,21 @@
+{
+  "name": "microservices-production-app",
+  "version": "1.0.0",
+  "description": "A production-ready microservices application with Node.js, Kafka, Redis, and Kubernetes.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start:gateway": "cd services/api-gateway && npm start",
+    "start:auth": "cd services/auth-service && npm start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "microservices",
+    "node.js",
+    "kafka",
+    "kubernetes",
+    "docker"
+  ],
+  "author": "Senior Architect",
+  "license": "ISC"
+}

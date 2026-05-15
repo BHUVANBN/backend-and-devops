@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    name: my-pod
+    namespace: my-namespace     #default by kubernetes
+spec: #specifications of the pod
+    containers:
+        - name: my-container
+          image: nginx
+          ports:
+            - containerPort: 80

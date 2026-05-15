@@ -1,0 +1,429 @@
+Kubernetes is a container orchestration platform
+it is Generic and portable
+
+Architecture of Kubernetes
+
+Control Plane (physical machine)
+- API server - exposes kubernetes API, takes instructions from users
+- etcd - stores cluster state and config, key value store
+- Scheduler - assigns pods to worker nodes
+- Controller - manages cluster state, executes instructions
+- Cloud controller manager - integrates with cloud providers (eg: provisioning load balancers, volumes), and make sure desired state matches actual state
+
+Data Plane (Worker Node / physical machine) - containers run here, minimum 2 required
+- Node agent - communicates with control plane
+- Container runtime - runs containers in pods, runs on each worker node
+- Kubelet - agent that communicates with control plane, handles docker container runtime
+- Kube-proxy - network proxy to access containers from user's machine
+
+CNI (Container Network Interface) - enables communication between pods and containers
+________________________________________________________________________________________________________________
+ways to create kubernetes cluster:
+1. kubeadm - installs kubernetes cluster on existing machines
+            master node - control plane, where kubeadm initializes the cluster (kubeadm init)
+            worker nodes - data plane, where containers run
+2. minikube - installs kubernetes cluster on local machine
+3. kind - installs kubernetes cluster on local machine using docker
+4. EKS/ACK/GKE - managed kubernetes clusters on cloud providers
+________________________________________________________________________________________________________________
+Kubernetes setup:
+install kubectl and minikube / kind
+
+manifest - yaml file that defines the desired state of a resource, how pods should be configured
+yaml basics:
+    list items are denoted by -
+    key value pairs are separated by colons(:)
+    indentation is important for nested structures
+
+kubectl - command line tool to interact with kubernetes cluster
+kubectl commands
+kubectl get nodes                             // get all nodes in default context
+kubectl get nodes --context <context-name>    // get all nodes in a specific context i.e cluster
+kubectl config use-context <context-name>     // use a specific context as default
+kubectl create ns <namespace-name>            // create a namespace
+kubectl get namespaces                        // get all namespaces
+kubectl run <pod-name> --image=<image-name>   // create a pod without creating a manifest file
+kubectl run <pod-name> --image=<image-name> -n <namespace-name>   // create a pod in a specific namespace
+kubectl get pods                              // get all pods
+kubectl get pods -o wide                      // get all pods with more details
+kubectl get pods -n <namespace>               // get all pods in a namespace
+kubectl delete pod <pod-name>                 // delete a pod
+kubectl describe pod <pod-name>               // describe a pod
+kubectl logs <pod-name>                       // get logs of a pod
+kubectl apply -f <filename>.yaml              // apply a manifest
+kubectl delete -f <filename>.yaml             // delete a manifest and all associated resources
+kubectl exec -it <pod-name> -- /bin/bash      // execute a command in a pod
+kubectl port-forward <pod-name> <local-port>:<pod-port>  // forward a local port to a pod port
+kubectl exec -it <pod-name> -- <command>      // execute a command in a pod
+kubectl cp <local-file> <pod-name>:<pod-path> // copy a file to a pod
+
+these commands are useful for debugging pods but to configure pods, we need to use manifests(.yaml files) for permanent configuration.
+to run manifests, we need to use :
+    kubectl apply -f <filename>.yaml
+to delete manifests, we need to use :
+    kubectl delete -f <filename>.yaml
+
+minikube - local kubernetes cluster for testing
+           and set minikube driver to docker 
+                minikube start --driver=docker
+                    Pulls a Kubernetes node image
+                    Creates a Docker container
+                    Installs Kubernetes components inside that container
+                    Starts control plane services
+            minikube addons
+                Dashboard – Web UI to view pods, deployments, logs, and resources; enable with minikube addons enable dashboard; open with minikube dashboard.
+                Ingress – Enables HTTP routing inside the cluster using an NGINX Ingress Controller; allows one IP to route to multiple services; enable with minikube addons enable ingress.
+                Metrics Server – Collects CPU and memory usage metrics for pods and nodes; required for kubectl top; enable with minikube addons enable metrics-server; check usage with kubectl top pods.
+                Registry – Creates a local container registry inside the cluster for pushing and pulling images locally; enable with minikube addons enable registry
+
+kind - local kubernetes cluster using docker
+cluster - collection of nodes
+// creating cluster using kind
+  apiVersion: kind.x-k8s.io/v1alpha4
+  kind: Cluster
+  nodes:
+    - role: control-plane
+      image: kindest/node:v1.31.2
+      extraPortMappings:
+        - containerPort: 80  # http port inside container
+          hostPort: 80       # http port on host machine
+          protocol: TCP
+        - containerPort: 443 # https port inside container
+          hostPort: 443      # https port on host machine
+          protocol: TCP
+    - role: worker
+      image: kindest/node:v1.31.2
+    - role: worker
+      image: kindest/node:v1.31.2
+    - role: worker
+      image: kindest/node:v1.31.2
+
+workflow of creating services
+1. create a pod using docker image
+   kubectl run my-pod --image=nginx
+2. create a deployment
+   kubectl create deployment my-deployment --image=nginx
+3. create a service
+   kubectl expose pod my-pod --port=80 --target-port=80
+4. expose the service
+   kubectl expose service my-service --type=NodePort
+
+namespaces - logical partitioning of resources, used to organize and isolate resources 
+             eg: default, kube-system, kube-public, kube-node-lease
+             by default all the resources are created in the default namespace
+             resources are the pods, services, deployments, etc.
+  //creating namespace using manifest file
+  eg:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+          name: my-namespace
+
+pods - smallest deployable unit in Kubernetes, It represents one running instance of your application
+  //creating pod using manifest file
+  eg:
+      apiVersion: v1
+      kind: Pod
+      metadata:
+          name: my-pod
+          namespace: my-namespace     #default by kubernetes
+      spec: #specifications of the pod
+          containers:
+              - name: my-container
+                image: nginx
+                ports:
+                  - containerPort: 80
+              - name: another-container
+                image: redis
+                ports:
+                  - containerPort: 6379
+  //typically we create 1 container per pod
+  //we can create multiple containers in a pod but it is not recommended
+  //to enter into the pod created:
+      kubectl exec -it my-pod -n my-namespace -- /bin/bash
+  //to describe the pod:
+      kubectl describe pod my-pod -n my-namespace
+
+Replicas of a pod is used to ensure high availability and scalability
+ReplicationController - ensures a specified number of pod replicas are running (old)
+ReplicaSet - improved ReplicationController ensures a specified number of pod replicas are running (new)
+StatefulSet - manages stateful applications with stable network identifiers and persistent storage, for data-intensive applications like kafka, redis services...
+DaemonSet - ensures a pod is running on each nodes
+deployments - manage ReplicaSets and rolling updates (one after other to minimize downtime)
+all the above are used to manage pods, but with different purposes and features
+  //creating deployment using manifest file
+  eg:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+          name: my-deployment
+          namespace: my-namespace
+      spec:
+          replicas: 3
+          selector: #selects the pods that this deployment manages
+              matchLabels:
+                  app: my-app
+          template: #creating pod template so deployment can create pods
+              metadata:
+                  name: my-pod-template
+                  labels:
+                      app: my-app
+              spec:
+                  containers:
+                      - name: my-container
+                        image: nginx
+                        ports:
+                          - containerPort: 80
+  to scale deployment:
+      kubectl scale deployment my-deployment --replicas=5 -n my-namespace
+  to get info about pods:
+      kubectl get pods -n my-namespace -o wide
+  to update pods(rolling updates by deployment):
+      kubectl set image deployment/my-deployment my-container=nginx:1.21 -n my-namespace
+
+jobs - Job is used to run a task that must complete successfully once (or a limited number of times)
+Unlike Deployments, which keep applications running continuously, Jobs run until the task finishes and then stop
+  //creating job using manifest file
+  eg:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+          name: my-job
+          namespace: my-namespace
+      spec:
+          completions: 3  #number of successful pods to complete the job
+          parallelism: 2  #number of pods to run in parallel
+          template:
+              metadata:
+                  name: my-job-pod
+                  labels:
+                      app: my-job
+              spec:
+                  containers:
+                      - name: batch-container
+                        image: busybox #busybox is used to run commands
+                        command: ["echo", "Hello World"]
+                  restartPolicy: Never #job will not restart if it fails
+          backoffLimit: 4 #number of times to retry before marking job as failed
+  to get the logs of a job:
+    kubectl logs -l app=my-job -n my-namespace
+
+cron jobs - CronJob is used to run jobs on a schedule ()
+  //creating cron job using manifest file
+  eg:
+      apiVersion: batch/v1
+      kind: CronJob
+      metadata:
+          name: my-cron-job
+          namespace: my-namespace
+      spec:
+          schedule: "*/2 * * * *"  #minute hour day month weekday, in this eg it runs every 2 minutes
+          jobTemplate:
+              spec:
+                  template:
+                      metadata:
+                          name: my-cron-job-pod
+                      labels:
+                          app: my-cron-job
+                      spec:
+                          containers:
+                              - name: cron-container
+                                image: busybox
+                                command: 
+                                - sh
+                                - -c
+                                - >
+                                  echo "backup started";
+                                  mkdir -p /backups &&
+                                  mkdir -p /demo-data &&
+                                  cp -r /demo-data /backups &&
+                                  echo "backup completed" ;
+                                volumeMounts:
+                                  - name: my-volume
+                                    mountPath: /demo-data
+                                  - name: backups-volume
+                                    mountPath: /backups
+                          restartPolicy: OnFailure
+                          volumes:
+                            - name: my-volume
+                              hostPath:
+                                path: /demo-data
+                                type: DirectoryOrCreate
+                            - name: backups-volume
+                              hostPath:
+                                path: /backups
+                                type: DirectoryOrCreate
+________________________________________________________________________________________________________________
+Storage and Volumes
+Whenever a pod is created and destroyed, the data is lost. To persist data, we need to use storage volumes.
+To persist data we need persistent volumes and persistent volume claims.
+//create persistent volume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  hostPath:
+    path: /data
+
+to get persistent volumes:
+  kubectl get pv
+
+now persistent volume is created in host path, needs to be claimed by a persistent volume claim
+//create persistent volume claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources: #requests for storage
+    requests:
+      storage: 500Mi
+  storageClassName: local-storage
+
+to get persistent volume claims:
+  kubectl get pvc
+________________________________________________________________________________________________________________
+Service proxy - deployments are made accessable through service proxy
+//create service proxy
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: my-app
+  ports:
+    - protocol: TCP
+      port: 80   #port external to service
+      targetPort: 80 #port of the container
+  type: ClusterIP
+
+//to get service
+  kubectl get service -n my-namespace
+kind cluster is a docker container that runs kubernetes, so it needs to be port-forwarded to access the service
+to port-forward:
+  kubectl port-forward service/my-service -n my-namespace 8080:80 --address 0.0.0.0
+now the port 80 of the cluster is exposed to the host machine at port 8080
+________________________________________________________________________________________________________________
+Entire workflow to create service of any application
+1. create docker image of the application
+2. push the docker image to a registry (docker hub, github container registry, etc.)
+3. create namespace for the application
+4. create a deployment yaml file
+5. create a service yaml file
+6. apply the yaml files
+7. expose the port of the service by port-forwarding
+________________________________________________________________________________________________________________
+Ingress - manages services and routes traffic to them (basically connects 2 or more services under one entry point)
+1. each services must be in same namespace
+
+________________________________________________________________________________________________________________
+
+Resource Management for namespaces
+ResourceQuota- resource constraints for a namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: my-namespace-quota
+  namespace: my-namespace
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+    pods: "10"
+    services: "5"
+    configmaps: "10"
+    secrets: "10"
+    persistentvolumeclaims: "5"
+    requests.storage: 10Gi
+    requests.ephemeral-storage: 5Gi
+    limits.ephemeral-storage: 10Gi
+
+kubectl top nodes     // get resource usage of nodes
+kubectl top pods      // get resource usage of pods
+to use these commands, install metrics server:
+    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+________________________________________________________________________________________________________________
+Resource Management for pods
+    apiVersion: v1
+    kind: Pod
+    metadata:
+        name: my-pod
+        namespace: my-namespace     #default by kubernetes
+    spec:                           #specifications of the pod
+        containers:
+            - name: nginx-container
+              image: nginx
+              ports:
+                - containerPort: 80
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "250m"   #1core = 1000 millicore
+                limits:
+                  memory: "128Mi"
+                  cpu: "500m"
+            - name: redis-container
+              image: redis
+              ports:
+                - containerPort: 6379
+              resources:
+                requests:
+                  memory: "64Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "128Mi"
+                  cpu: "500m"
+________________________________________________________________________________________________________________
+probes - it is used to check if a pod is healthy or not
+types - livenessProbe, readinessProbe
+if a pod donot respond to http requests, it will be restarted by kubernetes
+readiness fail - pod will not receive traffic
+liveness fail - pod will be killed and restarted
+
+eg:
+apiVersion:v1
+kind: Pod
+metadata:
+  name: my-pod
+  namespace: my-namespace
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx
+      ports:
+        - containerPort: 80
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "250m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+      livenessProbe:
+        httpGet:                   //http get requests is sent to container by probe
+          path: /health
+          port: 80
+        initialDelaySeconds: 30    //wait 30 seconds before starting probe
+        periodSeconds: 10          //check every 10 seconds
+        timeoutSeconds: 5          //timeout after 5 seconds
+        failureThreshold: 3        //fail after 3 consecutive failures, kill pod
+      readinessProbe:
+        httpGet:           
+          path: /
+          port: 80
+        initialDelaySeconds: 5
+        periodSeconds: 5

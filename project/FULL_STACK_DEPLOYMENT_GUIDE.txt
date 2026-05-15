@@ -1,0 +1,134 @@
+================================================================================
+PRODUCTION MICROSERVICES: COMPLETE LOCAL RUN & AWS EKS DEPLOYMENT GUIDE
+================================================================================
+
+This guide covers everything you need to run the system locally for development 
+and then host it on Amazon Web Services (AWS) using Managed Kubernetes (EKS) 
+with full Load Balancing and Autoscaling.
+
+---
+SECTION 1: RUNNING LOCALLY (DOCKER COMPOSE)
+---
+Before going to the cloud, ensure the system works on your machine.
+
+1. Create a root .env file:
+   In the project root, create a file named '.env' and add your credentials:
+   - DATABASE_URL="postgresql://user:password@host:5432/dbname" (Neon Postgres)
+   - JWT_SECRET="your_secret_key"
+   - STRIPE_SECRET_KEY="sk_test_..."
+   - CLOUDINARY_CLOUD_NAME="..."
+   - CLOUDINARY_API_KEY="..."
+   - CLOUDINARY_API_SECRET="..."
+
+2. Start the Orchesration:
+   Run: docker-compose up --build
+   This spins up:
+   - API Gateway (Port 3000)
+   - Auth Service (Port 3001)
+   - Order Service (Port 3002)
+   - Payment Service (Port 3004)
+   - Media Service (Port 3005)
+   - Frontend Dashboard (Port 8000)
+   - Redis & Kafka Infrastructure
+
+3. Access the Dashboard:
+   Visit: http://localhost:8000
+
+---
+SECTION 2: PRE-REQUISITES FOR AWS DEPLOYMENT
+---
+Ensure the following tools are installed and configured:
+1. AWS CLI: 'aws configure' (must have AdministratorAccess)
+2. eksctl: Official CLI for Amazon EKS
+3. kubectl: Kubernetes management tool
+4. Helm: Kubernetes package manager
+
+---
+SECTION 3: INFRASTRUCTURE PROVISIONING (AWS EKS)
+---
+1. Create the EKS Cluster:
+   Run this command to create a multi-AZ cluster with 2 worker nodes:
+   eksctl create cluster \
+     --name microservices-prod \
+     --region us-east-1 \
+     --nodes 2 \
+     --node-type t3.medium \
+     --managed
+
+2. Install Metrics Server (REQUIRED for Autoscaling/HPA):
+   kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+3. Install AWS Load Balancer Controller (REQUIRED for Load Balancing):
+   helm repo add eks https://aws.github.io/eks-charts
+   helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+     -n kube-system --set clusterName=microservices-prod
+
+---
+SECTION 4: PREPARING MANIFESTS & IMAGES
+---
+1. Push Images to Registry (GHCR or AWS ECR):
+   docker build -t <your-registry>/auth-service:latest ./services/auth-service
+   docker push <your-registry>/auth-service:latest
+   (Repeat for Gateway, Media, Payment, Order, Frontend)
+
+2. Update Registry Paths:
+   Open all files in 'infra/kubernetes/' and replace '<your-registry>' 
+   with your actual registry path.
+
+3. Encode Secrets:
+   Kubernetes secrets must be base64 encoded.
+   Example: echo -n "my-secret-key" | base64
+   Paste the resulting string into 'infra/kubernetes/secrets.yaml'.
+
+---
+SECTION 5: DEPLOYMENT SEQUENCE (STRICT ORDER)
+---
+Run these commands in order from the project root:
+
+1. Base Configurations:
+   kubectl apply -f infra/kubernetes/configmap.yaml
+   kubectl apply -f infra/kubernetes/secrets.yaml
+
+2. Infrastructure Heart (Auth & Gateway):
+   kubectl apply -f infra/kubernetes/auth-service.yaml
+   kubectl apply -f infra/kubernetes/api-gateway.yaml
+
+3. Domain Services:
+   kubectl apply -f infra/kubernetes/order-service.yaml
+   kubectl apply -f infra/kubernetes/payment-service.yaml
+   kubectl apply -f infra/kubernetes/media-service.yaml
+
+4. The Frontend:
+   kubectl apply -f infra/kubernetes/frontend.yaml
+
+5. Activate Autoscaling (HPA):
+   kubectl apply -f infra/kubernetes/hpa.yaml
+
+6. Activate Load Balancer (Ingress):
+   kubectl apply -f infra/kubernetes/ingress.yaml
+
+---
+SECTION 6: ACCESS & DNS (THE FINAL STEP)
+---
+1. Get the Load Balancer URL:
+   kubectl get ingress
+   Copy the ADDRESS (e.g., k8s-default-mainingr-xxx.us-east-1.elb.amazonaws.com)
+
+2. Map your Domain:
+   In AWS Route 53 (or your DNS provider), create a CNAME record:
+   - Name: api.yourdomain.com
+   - Value: (Paste the ALB URL from Step 1)
+
+---
+SECTION 7: MONITORING THE SYSTEM
+---
+- Verify Services: kubectl get pods
+- Check Load: kubectl get hpa
+- See Logs: kubectl logs -f deployment/auth-service
+
+Your system is now live on AWS with:
+- Multiple Replicas (High Availability)
+- Elastic Load Balancer (ALB)
+- Auto-scaling Pods (HPA)
+- Event-driven cross-service communication (Kafka)
+================================================================================

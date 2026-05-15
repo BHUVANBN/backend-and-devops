@@ -1,0 +1,19 @@
+### Test GET / Website
+GET http://localhost:8000/
+
+### test GET /dashboard
+GET http://localhost:8000/dashboard
+
+### data endpoint
+GET http://localhost:8000/api/data
+
+### post request
+POST http://localhost:8000/api/data
+Content-Type: application/json
+
+{
+    "name": "bhuvan"
+}
+
+### delete request
+DELETE http://localhost:8000/api/data

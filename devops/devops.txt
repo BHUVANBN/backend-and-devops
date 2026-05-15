@@ -1,0 +1,110 @@
+Devops - development(Writing features) and operations (Running them reliably in production)
+It’s a system design philosophy for building and shipping software at high velocity without chaos
+Instead of developers throwing code to ops teams, engineers own the full lifecycle: build, test, deploy, monitor, and improve
+
+PLAN    - Define features, architecture, backlog, and success metrics | Tools: Jira, Confluence, Miro, GitHub Projects
+CODE    - Write application and infrastructure code collaboratively | Tools: VS Code, Git, GitHub, GitLab
+BUILD   - Compile, package, and containerize the application | Tools: Maven, Gradle, npm, Docker
+TEST    - Validate functionality, performance, and security automatically | Tools: JUnit, PyTest, Selenium, Postman
+RELEASE - Version and prepare artifacts for production rollout | Tools: Git Tags, GitHub Releases, Nexus, Artifactory
+DEPLOY  - Push application to staging/production environments | Tools: Kubernetes, Helm, AWS, Nginx
+OPERATE - Keep systems running reliably and scalable in production | Tools: Kubernetes, Terraform, Ansible
+MONITOR - Track logs, metrics, and system health in real time | Tools: Prometheus, Grafana, ELK Stack
+
+CI-CD pipeline - continuous integration and continuous deployment
+its a automated pipeline 
+
+    Version Control:                     Git and Github
+    Continuous Integration (CI):         Automatically test every code change using tools like Jenkins, GitHub Actions, and GitLab CI
+    Continuous Delivery/Deployment (CD): Automate releases to staging and production environments.
+    Infrastructure as Code (IaC):        Manage servers using code with Terraform and AWS CloudFormation.
+    Containerization:                    Package applications and dependencies using Docker.
+    Container Orchestration:             Manage and scale containers using Kubernetes.
+    Cloud Platforms:                     Deploy and scale applications on AWS.
+    Monitoring & Observability:          Track performance and system health using Prometheus and Grafana.
+
+git commands:
+git config --global user.name "Name" – Set global username.
+git config --global user.email "Email" – Set global email.
+git init – Initialize a new repository.
+git clone <url> – Clone remote repository.
+git status – Check current state of files.
+git add <file> / git add . – Stage changes.
+git restore <file> – Discard unstaged changes.
+git commit -m "message" – Commit staged changes.
+git log – View commit history.
+git diff – Show file differences.
+git branch – List branches.
+git branch <name> – Create new branch.
+git checkout <name> – Switch branch.
+git switch <name> – Modern way to switch branches.
+git checkout -b <name> – Create and switch branch.
+git merge <branch> – Merge branch into current branch.
+git rebase <branch> – Reapply commits on top of another branch.
+git stash – Temporarily save uncommitted changes.
+git stash pop – Reapply stashed changes.
+git remote add origin <url> – Add remote repository.
+git remote -v – View remote repositories.
+git fetch – Download changes without merging.
+git pull – Fetch and merge remote changes.
+git push – Push commits to remote.
+git push -u origin <branch> – Push and set upstream tracking.
+git reset --soft <commit> – Undo commit but keep changes staged.
+git reset --hard <commit> – Reset commit and delete changes.
+git revert <commit> – Create new commit that undoes a commit.
+git tag <tagname> – Create version tag.
+git show <commit> – Show details of a commit.
+__________________________________________________________________________________________________________________________________________________________________
+github actions - is an automation engine that runs workflows when events happen in your repository
+Push code → Tests run → Build Docker → Deploy to server → Notify team.
+No manual steps.
+
+Core Concepts
+    Workflow → YAML file inside .github/workflows/
+    Event → When it runs (push, pull_request, etc.)
+    Job → A machine that executes steps
+    Step → Commands or actions executed
+    Runner → Virtual machine that runs your job
+
+if we create a app and push it to github and then deployed to a server, any changes made to the app will not be reflected in the server until we push the changes to github and then pull it in the server.
+to automate this process, we can use github actions.
+step1: Create a workflow file in .github/workflows/ci.yml
+step2: Define the event that triggers the workflow
+step3: Define the jobs that run when the event occurs
+step4: Define the steps that run in each job
+step5: Define the actions that run in each step
+
+eg: Nodejs Project, When code is pushed: Install dependencies -> Run tests -> Build Docker image
+.github/workflows/ci.yml
+
+name: Node CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest               //in the server on ubuntu 
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4        //predefined action to checkout the code
+      - name: deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}  //add this secret in github repository settings
+          username: root
+          key: ${{ secrets.SSH_KEY }}    //add this secret in github repository settings
+          script: |                      //these commands runs in server
+            cd /root/my-app
+            git pull
+            docker compose up -d
+    
+to generate ssh key:
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+this generates two files: id_rsa (private) and id_rsa.pub (public)
+
+paste the public key in the server's ~/.ssh/authorized_keys file
+paste the private key in the github repository settings as a secret and use it as ${secrets.SSH_KEY}
+now github actions can ssh into the server and run commands

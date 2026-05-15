@@ -1,0 +1,46 @@
+### GET /
+GET http://localhost:5000/
+
+### register
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+    "name": "batman",
+    "password": "123456"
+}
+
+### login
+POST http://localhost:5000/auth/login
+Content-Type: application/json
+
+{
+    "name": "batman",
+    "password": "123456"
+}
+
+### get todos
+GET http://localhost:5000/todos
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MTM5MzI0MywiZXhwIjoxNzcxMzk2ODQzfQ.E2liB-20nLS0hOUuLoEm6OCnIAFszVrVoo7cCUohODU
+
+### create todo
+POST http://localhost:5000/todos
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MTM5MzI0MywiZXhwIjoxNzcxMzk2ODQzfQ.E2liB-20nLS0hOUuLoEm6OCnIAFszVrVoo7cCUohODU
+Content-Type: application/json
+
+{
+    "task": "buy milk"
+}
+
+### update todo
+PUT http://localhost:5000/todos/5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MTM5MzI0MywiZXhwIjoxNzcxMzk2ODQzfQ.E2liB-20nLS0hOUuLoEm6OCnIAFszVrVoo7cCUohODU
+Content-Type: application/json
+
+{
+    "completed": 1
+}
+
+### delete todo
+DELETE http://localhost:5000/todos/5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc3MTM5MzI0MywiZXhwIjoxNzcxMzk2ODQzfQ.E2liB-20nLS0hOUuLoEm6OCnIAFszVrVoo7cCUohODU

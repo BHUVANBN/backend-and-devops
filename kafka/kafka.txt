@@ -1,0 +1,53 @@
+Zomato tracks the live location of the delivery partner each second and 
+store it to the db and sends it to the client so that it can show live location
+but throughput of database is low, so many writes to db makes db down
+
+messages in Discord
+real time data processing by db for millions of data is very hard
+
+db has low throughput but large storage
+Kafka has high throughput but small storage 
+
+Apache Kafka is an open-source distributed event streaming platform for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.
+millions of real time data ----> kafka ----> bulk entry of data to db in 1 insert
+                                  └─-->data to consumers(live feed, processing servers...)
+kafka broker
+  └─Topics - a partition to seperate the data 
+      └─ n Partitions - for n consumers and automatic load balances for them
+consumer groups - load balancing happens in groups
+lets say we have 2 grps - grp1 --> 5 consumers
+                          grp2 --> 1 consumer
+                now n(say 4) partitions data is processed by both grps 
+                          in grp1 4partitions are processed by 4 consumers and 1 will sit idle
+                          in grp2 $partitions are processed by 1 consumer 
+
+queue - 1 producer and 1 consumer
+pub/sub(publishers/subscribers) - 1 producer and many consumer
+kafka act as both 
+
+run kafka on 9092 using docker images
+
+kafka setup has 
+admin - infra setup(topics/partitions...)
+producer - msg/event producer
+consumer - msg consumer, subscribes to topics
+
+we can use kafka in nodejs using kafkajs library
+
+
+Microservices Architecture - in this Architecture the nodejs server is divided into different servers and interact each other
+Microservices = Many small backend applications working together instead of one big one.
+eg: Auth Service        → Node.js server
+    Order Service       → Node.js server
+    Payment Service     → Node.js server
+    Delivery Service    → Node.js server
+this is done because:
+  Independent scaling
+  Faster deployments
+  Technology freedom (Node for one, Java for another)
+  Team autonomy
+  Fault isolation
+
+when a service sent req to other service it waits for the reply 
+but using kafka a service stores data in kafka and continue its process
+kafka act as middleman between microservices

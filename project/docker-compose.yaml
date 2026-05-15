@@ -1,0 +1,150 @@
+version: '3.8'
+
+# Docker Compose: The Local Orchestration Engine
+# This file defines how all of our microservices, databases, and message brokers 
+# run together in isolated containers on a single network.
+
+services:
+  # --- INFRASTRUCTURE ---
+  
+  # Redis: In-memory store for Caching
+  # Used by Auth-Service to reduce database load.
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - micro-network
+
+  # Zookeeper: Distributed coordination for Kafka
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper-kafka
+    ports:
+      - "2181:2181"
+    networks:
+      - micro-network
+
+  # Kafka: The Event-Driven Message Broker
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka-broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=kafka
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+    networks:
+      - micro-network
+
+  # --- MICROSERVICES ---
+
+  # API Gateway: The "Door" for all requests
+  api-gateway:
+    build: 
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: micro-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - ORDER_SERVICE_URL=http://order-service:3002
+      - PAYMENT_SERVICE_URL=http://payment-service:3004
+      - MEDIA_SERVICE_URL=http://media-service:3005
+    depends_on:
+      - auth-service
+      - order-service
+      - payment-service
+      - media-service
+    networks:
+      - micro-network
+
+  # Auth Service: Identity Management
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: micro-auth-service
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=3001
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - redis
+      - kafka
+    networks:
+      - micro-network
+
+  # Media Service: Image handling (Cloudinary)
+  media-service:
+    build:
+      context: ./services/media-service
+      dockerfile: Dockerfile
+    container_name: micro-media-service
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=3005
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    networks:
+      - micro-network
+
+  # Payment Service: Stripe processing
+  payment-service:
+    build:
+      context: ./services/payment-service
+      dockerfile: Dockerfile
+    container_name: micro-payment-service
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=3004
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - kafka
+    networks:
+      - micro-network
+
+  # Order Service: Business logic for orders
+  order-service:
+    build:
+      context: ./services/order-service
+      dockerfile: Dockerfile
+    container_name: micro-order-service
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=3002
+      - DATABASE_URL=${DATABASE_URL}
+      - KAFKA_BROKERS=kafka:9092
+    networks:
+      - micro-network
+
+  # Frontend Service: Static assets
+  frontend:
+    build:
+      context: ./services/frontend
+      dockerfile: Dockerfile
+    container_name: micro-frontend
+    ports:
+      - "8000:8000"
+    networks:
+      - micro-network
+
+# Shared network for all service-to-service communication
+networks:
+  micro-network:
+    driver: bridge

@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: my-job
+  namespace: my-namespace
+spec:
+  completions: 3  #number of successful pods to complete the job
+  parallelism: 2  #number of pods to run in parallel
+  template:
+    metadata:
+      name: my-job-pod
+      labels:
+        app: my-job
+    spec:
+      containers:
+        - name: batch-container
+          image: busybox #busybox is used to run commands
+          command: ["echo", "Hello World"]
+      restartPolicy: Never #job will not restart if it fails
+  backoffLimit: 4 #number of times to retry before marking job as failed

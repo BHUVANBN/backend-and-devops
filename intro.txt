@@ -1,0 +1,35 @@
+https://youtu.be/9BD9eK9VqXA?si=rK-4G6eySv85Hn89
+
+full stack - frontend and backend
+client(browser) ---req---> server
+
+url converted to address (dns) then to ip address of a system in the network
+these systems listens to request and responds with response
+
+chapter3
+folder structure
+.
+|-- app.rest
+|-- package.json
+|-- public
+`-- src
+    |-- db.js
+    |-- middleware
+    |   `-- authMiddleware.js
+    |-- routes
+    |   |-- appRoutes.js
+    |   `-- authRoutes.js
+    `-- server.js
+
+
+"dev": "node --watch --env-file=.env ./src/server.js",
+--watch - watch for changes in the file and restart the server
+--env-file=.env - use the environment variables from the .env file
+./src/server.js - path to the server file
+
+chapter4 
+prisma - orm (object relational mapper) - act as a layer between the application and the database
+npm i prisma @prisma/client 
+npx prisma init - initialize prisma in the project , creates a prisma folder with schema.prisma file which contains the database schema
+npx prisma migrate dev --name add_users - feature of prisma to create tables in the database, it makes updates to the database schema
+npx prisma generate - generates the prisma client code based on the schema.prisma file
