@@ -1,0 +1,113 @@
+browser --> API --> Backend logic --> DB
+
+interaction between frontend(from browser) and backend follows REST API rules
+express and mongoose are libraries used in js backend
+A Javascript based backend handles - data, file or third party API
+
+directory structure:
+.
+|-- .env
+|-- .env.sample
+|-- .gitignore
+|-- .prettierignore
+|-- .prettierrc
+|-- README.md
+|-- package.json
+|-- public
+`-- src
+    |-- app.js                //entry point of the application
+    |-- constants.js          //contains constants eg: DB_NAME, DB_URL, etc
+    |-- index.js              //entry point of the application
+    |-- controllers           //contains logic to handle API requests
+    |-- db                    //to connect to DB
+    |-- middlewares           //contains middleware functions eg: authentication, error handling, etc
+    |-- models                //contains database schemas and models
+    |-- routes                //contains API routes
+    `-- utils                 //contains utility functions eg: helpers, etc
+_________________________________________________________________________________________________________________________________
+cors - cross origin resource sharing 
+- when frontend and backend run on different ports, cors is used to allow them to communicate
+ways to add cors:
+1. using package - npm i cors
+    eg: import cors from 'cors'
+        app.use(cors())
+        
+2. proxy in vite (for frontend)
+   eg: in vite.config.js
+   export default defineConfig({    
+    server:{
+        proxy: {
+            "/api" : "http://localhost:3000"
+        }
+    }
+   })
+_________________________________________________________________________________________________________________________________
+data modeling - creating schemas, collections and documents, in models folder
+// Database - mongoDB, Object Document Mapper - mongoose
+//or Database - PostgreSQL, Object Relational Mapper - prisma
+// Creating schemas in mongoose: 
+
+import mongoose from "mongoose";
+const userSchema = new mongoose.Schema({ //schema - structure of the document
+    name: {
+        type: String,
+        required: true,
+        trim: true,
+        minLength: 3,
+        maxLength: 30
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true,
+        validate: {
+            validator: function(v) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+            },
+            message: "Please enter a valid email address"
+        }
+    },
+    password: {
+        type: String,
+        required: true,
+        minLength: 6
+    }, 
+}, {timestamps: true});
+export const User = mongoose.model("User", userSchema); //model - class for creating documents
+_________________________________________________________________________________________________________________________________
+
+dev dependencies vs production dependencies: 
+dev dependencies - libraries used during development eg: nodemon, dotenv, cors, etc 
+production dependencies - libraries needed for the application to run eg: express, mongoose, etc 
+
+to install dev dependencies: npm i -D <package_name>
+eg: prettier - to format code, prettierrc file for rules, .prettierignore file to ignore files to apply prettier
+    nodemon - to watch and restart server    
+
+production dependencies: npm i <package_name>
+eg: express - web framework, mongoose - object data modeling, dotenv - to handle environment variables
+_________________________________________________________________________________________________________________________________
+Connecting to DB - using mongoDB Atlas
+_________________________________________________________________________________________________________________________________
+configuring app via middlewares in app.js:
+middleware - functions that run between request and response, can be used as app.use(middleware)
+
+1. cors middleware - to allow backend to receive requests from specified frontend url
+    eg: app.use(cors({ //middleware for cors
+        origin: process.env.CORS_ORIGIN, //frontend url should be here to allow requests
+        credentials: true //to allow cookies to be sent with requests
+    }))
+
+2. json middleware - express.json({limit:"16kb"}) //to allow backend to parse json data from requests
+3. url encoded middleware - express.urlencoded({extended:true, limit:"16kb"}) //to allow backend to parse url encoded data from requests
+4. static files middleware - express.static("public") //to serve static files from public folder
+5. cookies middleware - npm i cookie-parser //to allow backend to access cookies from user browser and set them for crud operations on cookies
+_________________________________________________________________________________________________________________________________
+status codes:
+Informational response - 100-199
+Successfull response - 200-299
+Redirection response - 300-399
+Client error response - 400-499
+Server error response - 500-599
