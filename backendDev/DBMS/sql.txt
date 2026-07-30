@@ -1,3 +1,329 @@
+If your goal is to become proficient in SQL for interviews or professional database work, these are the major topics you should cover.
+
+## 1. SQL Basics
+
+* What is SQL?
+* RDBMS concepts
+* Database, schema, tables
+* Rows and columns
+* Data types
+* NULL values
+* SQL syntax
+
+## 2. Database Creation
+
+* CREATE DATABASE
+* DROP DATABASE
+* CREATE TABLE
+* ALTER TABLE
+* TRUNCATE TABLE
+* DROP TABLE
+* RENAME TABLE
+
+## 3. Data Manipulation Language (DML)
+
+* INSERT
+* UPDATE
+* DELETE
+* MERGE (SQL Server)
+
+## 4. Querying Data
+
+* SELECT
+* DISTINCT
+* WHERE
+* ORDER BY
+* LIMIT / TOP / OFFSET FETCH
+* Aliases
+* Expressions
+
+## 5. Filtering
+
+* AND
+* OR
+* NOT
+* BETWEEN
+* IN
+* LIKE
+* IS NULL
+* EXISTS
+* ANY
+* ALL
+
+## 6. Aggregate Functions
+
+* COUNT()
+* SUM()
+* AVG()
+* MIN()
+* MAX()
+
+## 7. GROUP BY
+
+* GROUP BY
+* HAVING
+* Aggregate queries
+
+## 8. Joins
+
+* INNER JOIN
+* LEFT JOIN
+* RIGHT JOIN
+* FULL OUTER JOIN
+* CROSS JOIN
+* SELF JOIN
+
+## 9. Set Operators
+
+* UNION
+* UNION ALL
+* INTERSECT
+* EXCEPT (MINUS in Oracle)
+
+## 10. SQL Functions
+
+### String Functions
+
+* CONCAT
+* SUBSTRING
+* LENGTH
+* LOWER
+* UPPER
+* TRIM
+* REPLACE
+* LEFT
+* RIGHT
+
+### Numeric Functions
+
+* ROUND
+* CEILING
+* FLOOR
+* ABS
+* MOD
+
+### Date Functions
+
+* CURRENT_DATE
+* CURRENT_TIMESTAMP
+* DATEADD
+* DATEDIFF
+* DATE_FORMAT
+
+### NULL Functions
+
+* COALESCE
+* ISNULL
+* IFNULL
+* NULLIF
+
+## 11. Constraints
+
+* PRIMARY KEY
+* FOREIGN KEY
+* UNIQUE
+* CHECK
+* NOT NULL
+* DEFAULT
+
+## 12. Indexes
+
+* CREATE INDEX
+* UNIQUE INDEX
+* Composite Index
+* Clustered Index (SQL Server)
+* Non-clustered Index
+
+## 13. Views
+
+* CREATE VIEW
+* ALTER VIEW
+* DROP VIEW
+* Updatable Views
+
+## 14. Stored Procedures
+
+* Creating procedures
+* Parameters
+* Output parameters
+* Calling procedures
+
+## 15. Functions
+
+* Scalar functions
+* Table-valued functions (SQL Server)
+* User-defined functions
+
+## 16. Triggers
+
+* BEFORE Trigger
+* AFTER Trigger
+* INSTEAD OF Trigger (SQL Server)
+
+## 17. Transactions
+
+* BEGIN TRANSACTION
+* COMMIT
+* ROLLBACK
+* SAVEPOINT
+* ACID properties
+
+## 18. Common Table Expressions (CTEs)
+
+* Simple CTE
+* Recursive CTE
+
+## 19. Subqueries
+
+* Single-row
+* Multi-row
+* Correlated
+* Nested
+* Scalar
+
+## 20. Window Functions
+
+* ROW_NUMBER()
+* RANK()
+* DENSE_RANK()
+* NTILE()
+* LEAD()
+* LAG()
+* FIRST_VALUE()
+* LAST_VALUE()
+* OVER()
+* PARTITION BY
+
+## 21. CASE Expressions
+
+* CASE WHEN
+* Nested CASE
+
+## 22. Temporary Objects
+
+* Temporary tables
+* Table variables (SQL Server)
+
+## 23. Pivoting Data
+
+* PIVOT
+* UNPIVOT
+
+## 24. Security
+
+* Users
+* Roles
+* GRANT
+* REVOKE
+* DENY (SQL Server)
+
+## 25. Normalization
+
+* 1NF
+* 2NF
+* 3NF
+* BCNF
+* Denormalization
+
+## 26. Keys
+
+* Primary Key
+* Foreign Key
+* Candidate Key
+* Alternate Key
+* Composite Key
+* Surrogate Key
+
+## 27. Performance
+
+* Execution plans
+* Query optimization
+* Index tuning
+* Avoiding full table scans
+* Optimizer basics
+
+## 28. Advanced SQL
+
+* Recursive queries
+* Dynamic SQL
+* Recursive hierarchies
+* JSON support
+* XML support
+* Partitioning
+
+## 29. Import and Export
+
+* Import CSV
+* Export data
+* Bulk insert
+
+## 30. Database Design
+
+* ER diagrams
+* Relationships
+* One-to-one
+* One-to-many
+* Many-to-many
+
+## 31. SQL Server-Specific Topics (if learning MS SQL)
+
+* T-SQL
+* SQL Server Management Studio (SSMS)
+* Identity columns
+* Sequence objects
+* TRY...CATCH
+* Cursors
+* Table-valued parameters
+* SQL Server Agent
+* Jobs and scheduling
+
+## 32. Interview-Focused Topics
+
+* Second highest salary
+* Nth highest salary
+* Duplicate records
+* Remove duplicates
+* Employees earning more than managers
+* Running totals
+* Gaps and islands
+* Pivot questions
+* Ranking problems
+* Joins vs subqueries
+* EXISTS vs IN
+* DELETE vs TRUNCATE vs DROP
+* UNION vs UNION ALL
+* RANK vs DENSE_RANK vs ROW_NUMBER
+* Clustered vs Non-clustered indexes
+* CTE vs Temp Table
+* Correlated subqueries
+* Transaction isolation levels
+
+### Recommended learning order
+
+1. SQL Basics
+2. SELECT, WHERE, ORDER BY
+3. INSERT, UPDATE, DELETE
+4. Aggregate Functions
+5. GROUP BY & HAVING
+6. Joins
+7. Subqueries
+8. Set Operators
+9. Constraints & Keys
+10. Views
+11. Indexes
+12. Stored Procedures & Functions
+13. Triggers
+14. Transactions
+15. Window Functions
+16. CTEs
+17. Performance Tuning
+18. Advanced SQL & Interview Problems
+
+Following this sequence gives you a solid progression from fundamentals to advanced SQL and is well aligned with what employers commonly expect for SQL-focused roles.
+
+
+
+
 MySQL notes 
 
 DATATYPE	 	Description
@@ -22,12 +348,15 @@ DATE 			YYYY-MM-DD
 DATETIME 		YYYY-MM-DD HH:MM:SS
 TIMESTAMP 		YYYYMMDDHHMMSS
 TIME 			HH:MM:SS
-ENUM 			One of the preset values
+ENUM 			One of the preset values, e.g., ENUM('Male','Female', 'Other')
 SET 			One or many of the preset values
 BOOLEAN 		0/1
 BIT			e.g., BIT(n), n upto 64, store values in bits.
 
 Size: TINY < SMALL < MEDIUM < INT < BIGINT.
+
+
+To run .sql file: go to mysql cli and run: source path/to/file.sql 
 ____________________________________________________________________________________________________________________________________________________________________________
 
 TYPES OF SQL COMMANDS: DDL, DQL, DML, DCL, TCL
@@ -67,7 +396,7 @@ mysql> show databases;
 +--------------------+
 
 mysql> create database org;						//creating db
-mysql> use org;
+mysql> use org;								//select the db to run queries
 Database changed
 
 mysql> create table worker(						//creating table
@@ -94,9 +423,11 @@ mysql> create table title(
 	);
 __________________________________________________________________________________________________________________
 CONSTRAINTS:
+Auto_increment: increments the number foe each entry
 Primary Key: PK is not null, unique and only one per table.
 Foreign Key: FK refers to PK of other table. Each relation(table) can having any number of FK.
-	     syntax : foreign key( col_name_of_fk ) references worker( col_name_of_the_pk_in_parent_table )
+	     syntax : foreign key( col_name_of_fk ) references 	worker( col_name_of_the_pk_in_parent_table )
+Not Null: ensures column cannot have a null value
 Unique: Unique, can be null, table can have multiple unique attributes.
 Default: Set default value of the column.
 Check: a constraint to check the condition 
@@ -148,6 +479,21 @@ mysql> desc bonus;
 | bonus_amount  | int      | YES  |     | NULL    |       |
 | bonus_date    | datetime | YES  |     | NULL    |       |
 +---------------+----------+------+-----+---------+-------+
+
+mysql> insert into worker(worker_id, first_name, last_name, salary, joining_date, dept) values
+	(001,'Monika','Aurora', 100000,'14-09-20 09.00.00', 'HR'),
+	(002,'Satish','gupta','200000','05-03-21 09.00,00','Admin');
+	(003,'Vipul','diwan', 100000,'14-09-20 09.00.00', 'HR'),	
+	(004,'Suresh','bhati','400000','05-03-21 09.00,00','Admin'),
+	(005,'Vivek','Singh', 300000,'18-09-20 09.00.00', 'HR'),
+	(006,'Geetha','chauhan','700000','07-03-21 09.00,00','Account');
+
+mysql> insert into bonus (worker_ref_id, bonus_amount, bonus_date) values	//cannot insert as there is no values for 001,002 in parent table
+	(001,5000,'16-02-20'),
+	(002, 3000, '16-06-11'),
+	(003, 4000, '16-02-20');
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`org`.`bonus`, CONSTRAINT `bonus_ibfk_1` FOREIGN KEY (`worker_ref_id`) REFERENCES `worker` (`worker_id`) ON DELETE CASCADE)
+
 ____________________________________________________________________________________________________________________________________________________________________________
 
 ALTER OPERATIONS - alter the existing table
@@ -256,34 +602,7 @@ mysql> show tables;
 | worker        |
 +---------------+
 ____________________________________________________________________________________________________________________________________________________________________________
-
-mysql> insert into worker(worker_id, first_name, last_name, salary, joining_date, dept) values
-	(003,'Vipul','diwan', 100000,'14-09-20 09.00.00', 'HR'),	
-	(004,'Suresh','bhati','400000','05-03-21 09.00,00','Admin'),
-	(005,'Vivek','Singh', 300000,'18-09-20 09.00.00', 'HR'),
-	(006,'Geetha','chauhan','700000','07-03-21 09.00,00','Account');
-
-mysql> insert into bonus (worker_ref_id, bonus_amount, bonus_date) values	//cannot insert as there is no values for 001,002 in parent table
-	(001,5000,'16-02-20'),
-	(002, 3000, '16-06-11'),
-	(003, 4000, '16-02-20');
-ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`org`.`bonus`, CONSTRAINT `bonus_ibfk_1` FOREIGN KEY (`worker_ref_id`) REFERENCES `worker` (`worker_id`) ON DELETE CASCADE)
-
 *DQL / DRL
-
-mysql> select * from worker;
-+-----------+------------+-----------+--------+---------------------+---------+
-| worker_id | first_name | last_name | salary | joining_date        | dept    |
-+-----------+------------+-----------+--------+---------------------+---------+
-|         3 | Vipul      | diwan     | 100000 | 2014-09-20 09:00:00 | HR      |
-|         4 | Suresh     | bhati     | 400000 | 2005-03-21 09:00:00 | Admin   |
-|         5 | Vivek      | Singh     | 300000 | 2018-09-20 09:00:00 | HR      |
-|         6 | Geetha     | chauhan   | 700000 | 2007-03-21 09:00:00 | Account |
-+-----------+------------+-----------+--------+---------------------+---------+
-
-mysql> insert into worker(worker_id, first_name, last_name, salary, joining_date, dept) values
-	(001,'Monika','Aurora', 100000,'14-09-20 09.00.00', 'HR'),
-	(002,'Satish','gupta','200000','05-03-21 09.00,00','Admin');
 
 mysql> select * from worker;
 +-----------+------------+-----------+--------+---------------------+---------+
@@ -296,12 +615,44 @@ mysql> select * from worker;
 |         5 | Vivek      | Singh     | 300000 | 2018-09-20 09:00:00 | HR      |
 |         6 | Geetha     | chauhan   | 700000 | 2007-03-21 09:00:00 | Account |
 +-----------+------------+-----------+--------+---------------------+---------+
-6 rows in set (0.000 sec)
 
-mysql> insert into bonus (worker_ref_id, bonus_amount, bonus_date) values
-	(001,5000, '16-02-20'),
-	(002, 3000, '16-06-11'),
-	(003, 4000, '16-02-20');
+mysql> select * from worker limit 2;								//using limit
++-----------+------------+-----------+--------+---------------------+------------+
+| WORKER_ID | FIRST_NAME | LAST_NAME | SALARY | JOINING_DATE        | DEPARTMENT |
++-----------+------------+-----------+--------+---------------------+------------+
+|         1 | Monika     | Arora     | 100000 | 2014-02-20 09:00:00 | HR         |
+|         2 | Niharika   | Verma     |  80000 | 2014-06-11 09:00:00 | Admin      |
++-----------+------------+-----------+--------+---------------------+------------+
+
+mysql> select * from worker order by salary asc limit 2;					//using limit with order by 
++-----------+------------+-----------+--------+---------------------+------------+
+| WORKER_ID | FIRST_NAME | LAST_NAME | SALARY | JOINING_DATE        | DEPARTMENT |
++-----------+------------+-----------+--------+---------------------+------------+
+|         7 | Satish     | Kumar     |  75000 | 2014-01-20 09:00:00 | Account    |
+|         2 | Niharika   | Verma     |  80000 | 2014-06-11 09:00:00 | Admin      |
++-----------+------------+-----------+--------+---------------------+------------+
+
+mysql> SELECT * FROM worker ORDER BY worker_id LIMIT 2 OFFSET 2;				//offset 2 removes first 2 rows and fetches from 3rd row 
++-----------+------------+-----------+--------+---------------------+------------+
+| WORKER_ID | FIRST_NAME | LAST_NAME | SALARY | JOINING_DATE        | DEPARTMENT |
++-----------+------------+-----------+--------+---------------------+------------+
+|         3 | Vishal     | Singhal   | 300000 | 2014-02-20 09:00:00 | HR         |
+|         4 | Amitabh    | Singh     | 500000 | 2014-02-20 09:00:00 | Admin      |
++-----------+------------+-----------+--------+---------------------+------------+
+
+mysql> SELECT first_name, salary, salary + 5000 AS increased_salary FROM worker;		//we can use expressions in query - salary + 5000 AS increased_salary
++------------+--------+------------------+
+| first_name | salary | increased_salary |
++------------+--------+------------------+
+| Monika     | 100000 |           105000 |
+| Niharika   |  80000 |            85000 |
+| Vishal     | 300000 |           305000 |
+| Amitabh    | 500000 |           505000 |
+| Vivek      | 500000 |           505000 |
+| Vipul      | 200000 |           205000 |
+| Satish     |  75000 |            80000 |
+| Geetika    |  90000 |            95000 |
++------------+--------+------------------+
 
 mysql> select * from bonus;
 +---------------+--------------+---------------------+
@@ -345,6 +696,7 @@ mysql> select ucase("batman");			q			//uppercase
 | BATMAN          |
 +-----------------+
 ____________________________________________________________________________________________________________________________________________________________________________
+FILTERING DATA
 
 mysql> select * from worker where salary > 200000;					//operators
 +-----------+------------+-----------+--------+---------------------+---------+
@@ -601,8 +953,12 @@ mysql> select * from worker;
 
 mysql> delete from worker;											//deleting all rows (not table)
 Query OK, 7 rows affected (0.002 sec)
+Or
+mysql> TRUNCATE TABLE worker;
 mysql> select * from worker;
 Empty set (0.000 sec)
+
+//drop table worker; 												//deletes the table
 
 mysql> INSERT INTO worker
     -> (worker_id, first_name, last_name, salary, joining_date, dept, loan_applied)
@@ -680,6 +1036,18 @@ mysql> select * from worker;
 |         9 | Pranith    | mahajan   | 1000000 | 2018-09-20 09:00:00 | Account |            0 |
 |        34 | sumesh     | moore     |    NULL | NULL                | NULL    |         NULL |
 +-----------+------------+-----------+---------+---------------------+---------+--------------+
+
+MERGE: used to combine INSERT, UPDATE, and sometimes DELETE operations into a single statement. It is commonly used for synchronizing data between two tables.
+mysql> MERGE INTO target_table AS target USING source_table AS source ON target.id = source.id
+       WHEN MATCHED THEN UPDATE SET target.column = source.column
+       WHEN NOT MATCHED THEN INSERT (columns) VALUES (values);
+Eg:
+MERGE INTO Employees E USING NewEmployees N ON E.ID = N.ID
+WHEN MATCHED THEN
+    UPDATE SET E.Salary = N.Salary
+WHEN NOT MATCHED THEN
+    INSERT (ID, Name, Salary)
+    VALUES (N.ID, N.Name, N.Salary);
 ____________________________________________________________________________________________________________________________________________________________________________
 JOINS - Column wise Combination 
 
