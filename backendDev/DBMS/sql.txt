@@ -482,7 +482,7 @@ mysql> desc bonus;
 
 mysql> insert into worker(worker_id, first_name, last_name, salary, joining_date, dept) values
 	(001,'Monika','Aurora', 100000,'14-09-20 09.00.00', 'HR'),
-	(002,'Satish','gupta','200000','05-03-21 09.00,00','Admin');
+	(002,'Satish','gupta','200000','05-03-21 09.00,00','Admin'),
 	(003,'Vipul','diwan', 100000,'14-09-20 09.00.00', 'HR'),	
 	(004,'Suresh','bhati','400000','05-03-21 09.00,00','Admin'),
 	(005,'Vivek','Singh', 300000,'18-09-20 09.00.00', 'HR'),
@@ -546,9 +546,11 @@ mysql> desc worker;
 | loan         | double   | NO   |     | 0       |                |
 +--------------+----------+------+-----+---------+----------------+
 
-mysql> alter table worker change column loan loan_applied float;			//CHANGE COLUMN - change col name, we need to mention datatype also 
+mysql> alter table worker change column loan loan_applied float;			//CHANGE COLUMN - change col name, we need to mention datatype also
 Query OK, 7 rows affected (0.026 sec)
-Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> alter table worker rename column loan_applied to loan;				//RENAME COLUMN name only 
+Query OK, 7 rows affected (0.026 sec)
 
 mysql> desc worker;
 +--------------+----------+------+-----+---------+----------------+
@@ -561,7 +563,7 @@ mysql> desc worker;
 | joining_date | datetime | YES  |     | NULL    |                |
 | dept         | char(25) | YES  |     | NULL    |                |
 | age          | int      | NO   |     | NULL    |                |
-| loan_applied | float    | YES  |     | NULL    |                |
+| loan         | float    | YES  |     | NULL    |                |
 +--------------+----------+------+-----+---------+----------------+
 
 mysql> alter table worker drop column age;						//DROP COLUMN - remove the column 
@@ -578,7 +580,7 @@ mysql> desc worker;
 | salary       | int      | YES  |     | NULL    |                |
 | joining_date | datetime | YES  |     | NULL    |                |
 | dept         | char(25) | YES  |     | NULL    |                |
-| loan_applied | float    | YES  |     | NULL    |                |
+| loan         | float    | YES  |     | NULL    |                |
 +--------------+----------+------+-----+---------+----------------+
 
 mysql> select * from title;								
@@ -1243,6 +1245,239 @@ mysql> select a.*, b.* from CourseA as a left join CourseB as b on a.StudentName
 |       102 | Emma        |      NULL | NULL        |
 +-----------+-------------+-----------+-------------+
 ___________________________________________________________________________________________________________________________________________________________
+SQL FUNCTIONS
+
+1. String Functions:
+mysql> SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM worker;				//CONCAT()
++-----------------+
+| full_name       |
++-----------------+
+| Monika Arora    |
+| Niharika Verma  |
+| Vishal Singhal  |
+| Amitabh Singh   |
+| Vivek Bhati     |
+| Vipul Diwan     |
+| Satish Kumar    |
+| Geetika Chauhan |
++-----------------+
+
+mysql> SELECT SUBSTRING(first_name, 1, 3) AS short_name FROM worker;					//substring()
++------------+
+| short_name |
++------------+
+| Mon        |
+| Nih        |
+| Vis        |
+| Ami        |
+| Viv        |
+| Vip        |
+| Sat        |
+| Gee        |
++------------+
+
+mysql> SELECT first_name, LENGTH(first_name) AS name_length FROM worker;				//length()
++------------+-------------+
+| first_name | name_length |
++------------+-------------+
+| Monika     |           6 |
+| Niharika   |           8 |
+| Vishal     |           6 |
+| Amitabh    |           7 |
+| Vivek      |           5 |
+| Vipul      |           5 |
+| Satish     |           6 |
+| Geetika    |           7 |
++------------+-------------+
+
+mysql> SELECT LOWER(first_name) AS lower_name FROM worker;						//lower()
++------------+
+| lower_name |
++------------+
+| monika     |
+| niharika   |
+| vishal     |
+| amitabh    |
+| vivek      |
+| vipul      |
+| satish     |
+| geetika    |
++------------+
+
+mysql> SELECT UPPER(first_name) AS lower_name FROM worker;						//upper()
++------------+
+| lower_name |
++------------+
+| MONIKA     |
+| NIHARIKA   |
+| VISHAL     |
+| AMITABH    |
+| VIVEK      |
+| VIPUL      |
+| SATISH     |
+| GEETIKA    |
++------------+
+
+mysql> SELECT TRIM('   SQL   ') AS result;								//trim() - removes whitespace from both ends
++--------+
+| result |
++--------+
+| SQL    |
++--------+
+
+mysql> SELECT REPLACE(first_name, 'a', 'A') FROM worker;						//replace()
++-------------------------------+
+| REPLACE(first_name, 'a', 'A') |
++-------------------------------+
+| MonikA                        |
+| NihArikA                      |
+| VishAl                        |
+| AmitAbh                       |
+| Vivek                         |
+| Vipul                         |
+| SAtish                        |
+| GeetikA                       |
++-------------------------------+
+
+mysql> SELECT LEFT(first_name, 2) FROM worker;								//left()
++---------------------+
+| LEFT(first_name, 2) |
++---------------------+
+| Mo                  |
+| Ni                  |
+| Vi                  |
+| Am                  |
+| Vi                  |
+| Vi                  |
+| Sa                  |
+| Ge                  |
++---------------------+
+
+mysql> SELECT RIGHT(first_name, 2) FROM worker;								//right()
++----------------------+
+| RIGHT(first_name, 2) |
++----------------------+
+| ka                   |
+| ka                   |
+| al                   |
+| bh                   |
+| ek                   |
+| ul                   |
+| sh                   |
+| ka                   |
++----------------------+
+
+2. Numeric Functions:
+
+mysql> SELECT ROUND(salary, 2) FROM worker;								//round
++------------------+
+| ROUND(salary, 2) |
++------------------+
+|           100000 |
+|            80000 |
+|           300000 |
+|           500000 |
+|           500000 |
+|           200000 |
+|            75000 |
+|            90000 |
++------------------+
+
+mysql> SELECT CEILING(45.2);										//ceiling
++---------------+
+| CEILING(45.2) |
++---------------+
+|            46 |
++---------------+
+
+mysql> SELECT FLOOR(45.9);										//floor
++-------------+
+| FLOOR(45.9) |
++-------------+
+|          45 |
++-------------+
+
+mysql> SELECT ABS(-500);										//abs
++-----------+
+| ABS(-500) |
++-----------+
+|       500 |
++-----------+
+
+mysql> SELECT MOD(10,3);										//mod
++-----------+
+| MOD(10,3) |
++-----------+
+|         1 |
++-----------+
+
+3. Date Functions:
+
+mysql> SELECT CURRENT_DATE();										//current_date
++----------------+
+| CURRENT_DATE() |
++----------------+
+| 2026-07-31     |
++----------------+
+
+mysql> SELECT CURRENT_TIMESTAMP();									//CURRENT_TIMESTAMP()
++---------------------+
+| CURRENT_TIMESTAMP() |
++---------------------+
+| 2026-07-31 14:05:32 |
++---------------------+
+
+mysql> SELECT DATE_ADD('2026-01-01', INTERVAL 30 DAY);							//adding days to date
++-----------------------------------------+
+| DATE_ADD('2026-01-01', INTERVAL 30 DAY) |
++-----------------------------------------+
+| 2026-01-31                              |
++-----------------------------------------+
+
+mysql> SELECT DATEDIFF('2026-07-31','2026-07-01');							//getting days from difference
++-------------------------------------+
+| DATEDIFF('2026-07-31','2026-07-01') |
++-------------------------------------+
+|                                  30 |
++-------------------------------------+
+
+mysql> SELECT DATE_FORMAT(joining_date,'%d-%m-%Y') FROM worker;						//formatting date as required
++--------------------------------------+
+| DATE_FORMAT(joining_date,'%d-%m-%Y') |
++--------------------------------------+
+| 20-02-2014                           |
+| 11-06-2014                           |
+| 20-02-2014                           |
+| 20-02-2014                           |
+| 11-06-2014                           |
+| 11-06-2014                           |
+| 20-01-2014                           |
+| 11-04-2014                           |
++--------------------------------------+
+
+4. NULL functions
+
+mysql> SELECT COALESCE(NULL,NULL,100,200);								//returns the first non-null value from a list/column 
++-----------------------------+
+| COALESCE(NULL,NULL,100,200) |
++-----------------------------+
+|                         100 |
++-----------------------------+
+
+mysql> SELECT IFNULL(NULL,0);										//if the value is null(in list/column) return the 0
++----------------+
+| IFNULL(NULL,0) |
++----------------+
+|              0 |
++----------------+
+
+mysql> SELECT NULLIF(10,10);										//returns null if to values are equal
++---------------+
+| NULLIF(10,10) |
++---------------+
+|          NULL |
++---------------+
+___________________________________________________________________________________________________________________________________________________________
 SUB QUERIES
 
 1. Outer query depends on inner query
@@ -1501,4 +1736,4 @@ mysql> show tables;
 | Employee       |
 | Orders         |
 +----------------+
-
+___________________________________________________________________________________________________________________________________________________________
