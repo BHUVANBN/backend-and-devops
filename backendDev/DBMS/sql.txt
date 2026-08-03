@@ -1737,3 +1737,189 @@ mysql> show tables;
 | Orders         |
 +----------------+
 ___________________________________________________________________________________________________________________________________________________________
+INDEXING IN SQL:
+The data entries(rows) are stored in blocks with a predefined size to it which holds some particular rows for each block
+So when we want to read a row it have to load the entire block to memory 
+This increases the time of execution 
+INDEXING creates a new table with a column and its indexing pointing to the exact location in the actual table this is also stored in blocks in disk but it takes less blocks as it contains only 2 columns 
+So to read a record first it have to read the index table and then read the particular blocks stated in the index table, this reduces the execution time significantly
+
+Indexes slows down insert, update, delete process as its needs to be update the index table also
+
+mysql> select first_name from worker where department = 'HR';				//without indexing takes 0.003sec
++------------+
+| first_name |
++------------+
+| Monika     |
+| Vishal     |
++------------+
+2 rows in set (0.003 sec)
+
+mysql> create index i_dept on worker(department);					//creating index on department, i_dept is the name given to the index
+Query OK, 0 rows affected (0.041 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> select first_name from worker where department = 'HR';				//after indexing takes 0.002sec (very useful for huge databases)
++------------+
+| first_name |
++------------+
+| Monika     |
+| Vishal     |
++------------+
+2 rows in set (0.002 sec)
+
+mysql> show index from worker;							//indexes on table worker 
++--------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+| Table  | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment | Visible | Expression |
++--------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+| worker |          0 | PRIMARY  |            1 | WORKER_ID   | A         |           8 |     NULL |   NULL |      | BTREE      |         |               | YES     | NULL       |
+| worker |          1 | i_dept   |            1 | DEPARTMENT  | A         |           3 |     NULL |   NULL | YES  | BTREE      |         |               | YES     | NULL       |
++--------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+2 rows in set (0.006 sec)
+
+mysql> drop index i_dept on worker;						//deleting index for department
+Query OK, 0 rows affected (0.010 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+UNIQUE INDEXING: indexing for the column with unique constraint
+A column with duplicate entries cannot be taken for unique indexing 
+Even if the column is not unique while creating if the unique index in creating using that column it enforces the unique constraint on the column and do not allow duplicates
+A unique index is used when you need two things at the same time:
+	Fast searching (like a normal index sometimes more faster as it has only one record)
+	A guarantee that duplicate values cannot exist
+
+COMPOSITE INDEX: creating index with more than 1 column 
+mysql> CREATE INDEX idx_worker_dept_salary ON worker(department, salary);  
+Query OK, 0 rows affected (0.034 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+Used when we need to query both column at time like
+mysql> SELECT * FROM worker WHERE department='HR' AND salary=300000; //order matters (same as index creation)
++-----------+------------+-----------+--------+---------------------+------------+
+| WORKER_ID | FIRST_NAME | LAST_NAME | SALARY | JOINING_DATE        | DEPARTMENT |
++-----------+------------+-----------+--------+---------------------+------------+
+|         3 | Vishal     | Singhal   | 300000 | 2014-02-20 09:00:00 | HR         |
++-----------+------------+-----------+--------+---------------------+------------+
+
+CLUSTERRED INDEX: used when we have non key and in order, eg: 1,1,1,2,3,3,4,.. here the column is in order but its not unique values
+___________________________________________________________________________________________________________________________________________________________
+STORED PROCEDURES: its a saved SQL block that can be executed later, like functions
+delimiter is a symbol which ends a query (;), but in procedures ends with END, so we need to change the delimiter to something else(like // or &&) so that it donot think ; in the query inside procedure as delimiter and terminate before END keyword
+
+mysql> delimiter //									//changing delimiter from ; to //
+mysql> create procedure select_worker() 							//creating stored procedure
+	begin 
+	select * from worker; 
+	end //
+mysql> delimiter ;									//changing back the delimiter 
+mysql> call select_worker();								//calling stored procedure
++-----------+------------+-----------+--------+---------------------+------------+
+| WORKER_ID | FIRST_NAME | LAST_NAME | SALARY | JOINING_DATE        | DEPARTMENT |
++-----------+------------+-----------+--------+---------------------+------------+
+|         1 | Monika     | Arora     | 100000 | 2014-02-20 09:00:00 | HR         |
+|         2 | Niharika   | Verma     |  80000 | 2014-06-11 09:00:00 | Admin      |
+|         3 | Vishal     | Singhal   | 300000 | 2014-02-20 09:00:00 | HR         |
+|         4 | Amitabh    | Singh     | 500000 | 2014-02-20 09:00:00 | Admin      |
+|         5 | Vivek      | Bhati     | 500000 | 2014-06-11 09:00:00 | Admin      |
+|         6 | Vipul      | Diwan     | 200000 | 2014-06-11 09:00:00 | Account    |
+|         7 | Satish     | Kumar     |  75000 | 2014-01-20 09:00:00 | Account    |
+|         8 | Geetika    | Chauhan   |  90000 | 2014-04-11 09:00:00 | Admin      |
++-----------+------------+-----------+--------+---------------------+------------+
+8 rows in set (0.003 sec)
+
+Stored Procedures with inputs:
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE InsertWorker(							//inputs defined with IN with datatype
+    ->     IN p_FIRST_NAME CHAR(25),
+    ->     IN p_LAST_NAME CHAR(25),
+    ->     IN p_SALARY INT,
+    ->     IN p_JOINING_DATE DATETIME,
+    ->     IN p_DEPARTMENT CHAR(25)
+    -> )
+    -> BEGIN
+    ->     INSERT INTO Worker								//SQL query with input variables in values()
+    ->     (
+    ->         FIRST_NAME,
+    ->         LAST_NAME,
+    ->         SALARY,
+    ->         JOINING_DATE,
+    ->         DEPARTMENT
+    ->     )
+    ->     VALUES
+    ->     (
+    ->         p_FIRST_NAME,
+    ->         p_LAST_NAME,
+    ->         p_SALARY,
+    ->         p_JOINING_DATE,
+    ->         p_DEPARTMENT
+    ->     );
+    -> END //
+Query OK, 0 rows affected (0.014 sec)
+mysql> DELIMITER ;
+
+mysql> CALL InsertWorker(								//calling procedure with inputs
+    ->     'Rahul',
+    ->     'Sharma',
+    ->     50000,
+    ->     '2026-08-02 10:30:00',
+    ->     'HR'
+    -> );
+Query OK, 1 row affected (0.004 sec)
+
+mysql> select * from worker;
++-----------+------------+-----------+--------+---------------------+------------+
+| WORKER_ID | FIRST_NAME | LAST_NAME | SALARY | JOINING_DATE        | DEPARTMENT |
++-----------+------------+-----------+--------+---------------------+------------+
+|         1 | Monika     | Arora     | 100000 | 2014-02-20 09:00:00 | HR         |
+|         2 | Niharika   | Verma     |  80000 | 2014-06-11 09:00:00 | Admin      |
+|         3 | Vishal     | Singhal   | 300000 | 2014-02-20 09:00:00 | HR         |
+|         4 | Amitabh    | Singh     | 500000 | 2014-02-20 09:00:00 | Admin      |
+|         5 | Vivek      | Bhati     | 500000 | 2014-06-11 09:00:00 | Admin      |
+|         6 | Vipul      | Diwan     | 200000 | 2014-06-11 09:00:00 | Account    |
+|         7 | Satish     | Kumar     |  75000 | 2014-01-20 09:00:00 | Account    |
+|         8 | Geetika    | Chauhan   |  90000 | 2014-04-11 09:00:00 | Admin      |
+|         9 | Rahul      | Sharma    |  50000 | 2026-08-02 10:30:00 | HR         |
++-----------+------------+-----------+--------+---------------------+------------+
+9 rows in set (0.000 sec)
+
+mysql> SHOW PROCEDURE STATUS WHERE db = database();					//listing all stored procedures in current db
++------+---------------+-----------+----------+----------------+---------------------+---------------------+---------------+---------+----------------------+----------------------+--------------------+
+| Db   | Name          | Type      | Language | Definer        | Modified            | Created             | Security_type | Comment | character_set_client | collation_connection | Database Collation |
++------+---------------+-----------+----------+----------------+---------------------+---------------------+---------------+---------+----------------------+----------------------+--------------------+
+| ORG  | InsertWorker  | PROCEDURE | SQL      | root@localhost | 2026-08-04 01:00:48 | 2026-08-04 01:00:48 | DEFINER       |         | utf8mb4              | utf8mb4_0900_ai_ci   | utf8mb4_0900_ai_ci |
+| ORG  | select_worker | PROCEDURE | SQL      | root@localhost | 2026-08-02 15:27:32 | 2026-08-02 15:27:32 | DEFINER       |         | utf8mb4              | utf8mb4_0900_ai_ci   | utf8mb4_0900_ai_ci |
++------+---------------+-----------+----------+----------------+---------------------+---------------------+---------------+---------+----------------------+----------------------+--------------------+
+3 rows in set (0.002 sec)
+
+mysql> SHOW CREATE PROCEDURE InsertWorker;						//show procedure definition
+| Procedure    | sql_mode                                                                                                              | Create Procedure                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | character_set_client | collation_connection | Database Collation |
+
+| InsertWorker | ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION | CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertWorker`(
+    IN p_FIRST_NAME CHAR(25),
+    IN p_LAST_NAME CHAR(25),
+    IN p_SALARY INT,
+    IN p_JOINING_DATE DATETIME,
+    IN p_DEPARTMENT CHAR(25)
+)
+BEGIN
+    INSERT INTO Worker
+    (
+        FIRST_NAME,
+        LAST_NAME,
+        SALARY,
+        JOINING_DATE,
+        DEPARTMENT
+    )
+    VALUES
+    (
+        p_FIRST_NAME,
+        p_LAST_NAME,
+        p_SALARY,
+        p_JOINING_DATE,
+        p_DEPARTMENT
+    );
+END | utf8mb4              | utf8mb4_0900_ai_ci   | utf8mb4_0900_ai_ci |
+1 row in set (0.001 sec)
+
+mysql> drop procedure select_worker;						//drop stored procedure
+Query OK, 0 rows affected (0.006 sec)
