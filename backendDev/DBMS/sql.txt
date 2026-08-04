@@ -1923,3 +1923,150 @@ END | utf8mb4              | utf8mb4_0900_ai_ci   | utf8mb4_0900_ai_ci |
 
 mysql> drop procedure select_worker;						//drop stored procedure
 Query OK, 0 rows affected (0.006 sec)
+___________________________________________________________________________________________________________________________________________________________
+TRIGGERS: Special king of program that automatically executed when a specific event occurs in a table like insert, update, delete
+Used in Automation like logging, business logics, automatically updating related data
+
+NEW and OLD keywords:
++-------------------+--------------------+-----------------------------------------+
+| Keyword           | Used In            | Meaning                                 |
++-------------------+--------------------+-----------------------------------------+
+| `NEW.column_name` | `INSERT`, `UPDATE` | The new value being inserted or updated |
+| `OLD.column_name` | `UPDATE`, `DELETE` | The existing value before the change    |
++-------------------+--------------------+-----------------------------------------+
+
+Eg: before insert trigger
+mysql> DELIMITER //
+mysql> CREATE TRIGGER before_worker_insert					//creating trigger using a name
+    -> BEFORE INSERT ON Worker						//condition when trigger is triggered
+    -> FOR EACH ROW								//executes on each affected rows
+    -> BEGIN
+    ->     IF NEW.SALARY < 0 THEN						//logic to perform when triggered 
+    ->         SET NEW.SALARY = 0;
+    ->     END IF;
+    -> END//
+mysql> DELIMITER ;
+
+mysql> INSERT INTO Worker (FIRST_NAME, LAST_NAME, SALARY, JOINING_DATE, DEPARTMENT)
+       VALUES('Rahul','Sharma',-5000,NOW(),'HR');
+Query OK, 1 row affected (0.005 sec)
+
+mysql> select * from worker;
++-----------+------------+-----------+--------+---------------------+------------+
+| WORKER_ID | FIRST_NAME | LAST_NAME | SALARY | JOINING_DATE        | DEPARTMENT |
++-----------+------------+-----------+--------+---------------------+------------+
+|         1 | Monika     | Arora     | 100000 | 2014-02-20 09:00:00 | HR         |
+|         2 | Niharika   | Verma     |  80000 | 2014-06-11 09:00:00 | Admin      |
+|         3 | Vishal     | Singhal   | 300000 | 2014-02-20 09:00:00 | HR         |
+|         4 | Amitabh    | Singh     | 500000 | 2014-02-20 09:00:00 | Admin      |
+|         5 | Vivek      | Bhati     | 500000 | 2014-06-11 09:00:00 | Admin      |
+|         6 | Vipul      | Diwan     | 200000 | 2014-06-11 09:00:00 | Account    |
+|         7 | Satish     | Kumar     |  75000 | 2014-01-20 09:00:00 | Account    |
+|         8 | Geetika    | Chauhan   |  90000 | 2014-04-11 09:00:00 | Admin      |
+|         9 | Rahul      | Sharma    |  50000 | 2026-08-02 10:30:00 | HR         |
+|        10 | Rahul      | Sharma    |      0 | 2026-08-04 01:29:08 | HR         |
++-----------+------------+-----------+--------+---------------------+------------+
+10 rows in set (0.001 sec)
+_______________________________________________________________________________________________________________________
+Eg: after insert trigger
+mysql> CREATE TABLE Worker_Log (						//creating log table after insert
+    ->     LOG_ID INT AUTO_INCREMENT PRIMARY KEY,
+    ->     WORKER_ID INT,
+    ->     ACTION_TIME DATETIME
+    -> );
+Query OK, 0 rows affected (0.012 sec)
+
+mysql> DELIMITER //
+mysql> CREATE TRIGGER after_worker_insert
+    -> AFTER INSERT ON Worker
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     INSERT INTO Worker_Log
+    ->     (WORKER_ID, ACTION_TIME)
+    ->     VALUES
+    ->     (NEW.WORKER_ID, NOW());
+    -> END//
+Query OK, 0 rows affected (0.003 sec)
+mysql> DELIMITER ;
+
+mysql> INSERT INTO Worker(FIRST_NAME, LAST_NAME, SALARY, JOINING_DATE, DEPARTMENT)
+       VALUES('Priya','Patel',60000,NOW(),'Admin');
+Query OK, 1 row affected (0.003 sec)
+
+mysql> SELECT * FROM Worker_Log;
++--------+-----------+---------------------+
+| LOG_ID | WORKER_ID | ACTION_TIME         |
++--------+-----------+---------------------+
+|      1 |        11 | 2026-08-04 01:30:20 |
++--------+-----------+---------------------+
+1 row in set (0.000 sec)
+_______________________________________________________________________________________________________________________
+Eg: before update trigger
+mysql> DELIMITER //
+mysql> CREATE TRIGGER before_worker_update
+    -> BEFORE UPDATE ON Worker
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     IF NEW.SALARY < OLD.SALARY THEN
+    ->         SET NEW.SALARY = OLD.SALARY;
+    ->     END IF;
+    -> END//
+Query OK, 0 rows affected (0.003 sec)
+mysql> DELIMITER ;
+
+mysql> UPDATE Worker SET SALARY = 30000 WHERE WORKER_ID = 1;
+Query OK, 0 rows affected (0.002 sec)
+Rows matched: 1  Changed: 0  Warnings: 0
+
+mysql> select * from worker;
++-----------+------------+-----------+--------+---------------------+------------+
+| WORKER_ID | FIRST_NAME | LAST_NAME | SALARY | JOINING_DATE        | DEPARTMENT |
++-----------+------------+-----------+--------+---------------------+------------+
+|         1 | Monika     | Arora     | 100000 | 2014-02-20 09:00:00 | HR         |
+|         2 | Niharika   | Verma     |  80000 | 2014-06-11 09:00:00 | Admin      |
+|         3 | Vishal     | Singhal   | 300000 | 2014-02-20 09:00:00 | HR         |
+|         4 | Amitabh    | Singh     | 500000 | 2014-02-20 09:00:00 | Admin      |
+|         5 | Vivek      | Bhati     | 500000 | 2014-06-11 09:00:00 | Admin      |
+|         6 | Vipul      | Diwan     | 200000 | 2014-06-11 09:00:00 | Account    |
+|         7 | Satish     | Kumar     |  75000 | 2014-01-20 09:00:00 | Account    |
+|         8 | Geetika    | Chauhan   |  90000 | 2014-04-11 09:00:00 | Admin      |
+|         9 | Rahul      | Sharma    |  50000 | 2026-08-02 10:30:00 | HR         |
+|        10 | Rahul      | Sharma    |      0 | 2026-08-04 01:29:08 | HR         |
+|        11 | Priya      | Patel     |  60000 | 2026-08-04 01:30:20 | Admin      |
++-----------+------------+-----------+--------+---------------------+------------+
+_______________________________________________________________________________________________________________________
+Eg: after delete trigger
+mysql> CREATE TABLE Deleted_Workers (
+    ->     WORKER_ID INT,
+    ->     FIRST_NAME CHAR(25),
+    ->     LAST_NAME CHAR(25),
+    ->     DELETED_TIME DATETIME
+    -> );
+Query OK, 0 rows affected (0.005 sec)
+
+mysql> DELIMITER //
+mysql> CREATE TRIGGER after_worker_delete
+    -> AFTER DELETE ON Worker
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     INSERT INTO Deleted_Workers
+    ->     (WORKER_ID, FIRST_NAME, LAST_NAME, DELETED_TIME)
+    ->     VALUES
+    ->     (OLD.WORKER_ID, OLD.FIRST_NAME, OLD.LAST_NAME, NOW());
+    -> END//
+Query OK, 0 rows affected (0.003 sec)
+mysql> DELIMITER ;
+
+mysql> DELETE FROM Worker WHERE WORKER_ID = 10;
+mysql> select * from Deleted_Workers;
++-----------+------------+-----------+---------------------+
+| WORKER_ID | FIRST_NAME | LAST_NAME | DELETED_TIME        |
++-----------+------------+-----------+---------------------+
+|        10 | Rahul      | Sharma    | 2026-08-04 01:33:34 |
++-----------+------------+-----------+---------------------+
+_______________________________________________________________________________________________________________________
+mysql> SHOW TRIGGERS;						//lists all the triggers in db
+mysql> SHOW CREATE TRIGGER before_worker_insert;		//shows SQL definition of a trigger:
+mysql> DROP TRIGGER before_worker_insert;			//deletes a trigger
+
+___________________________________________________________________________________________________________________________________________________________
