@@ -888,6 +888,20 @@ mysql> select dept, sum(salary) from worker group by dept;			//SUM
 | NULL    |      100000 |
 +---------+-------------+
 
+mysql> mysql> SELECT
+    ->     department,
+    ->     SUM(CASE WHEN salary > 50000 THEN salary ELSE 0 END) AS high_salary_total
+    -> FROM worker
+    -> GROUP BY department;
++------------+-------------------+
+| department | high_salary_total |
++------------+-------------------+
+| Account    |            275000 |
+| Admin      |           1230000 |
+| HR         |            400000 |
++------------+-------------------+      //filter on aggregation function
+
+GROUP BY dept;
 GROUP BY HAVING - group by with the condition, condition is applied, similar to WHERE
 WHERE clause is used to filter the rows from the table based on specified condition
 HAVING clause is used to filter the rows from the groups based on the specified condition. 
@@ -2070,3 +2084,19 @@ mysql> SHOW CREATE TRIGGER before_worker_insert;		//shows SQL definition of a tr
 mysql> DROP TRIGGER before_worker_insert;			//deletes a trigger
 
 ___________________________________________________________________________________________________________________________________________________________
+TRANSACTIONS:
+A transaction is a group of SQL operations that should succeed or fail together.
+It is used to maintain data consistency.
+
+Example: Bank transfer
+
+mysql> BEGIN;
+	UPDATE accounts SET balance = balance - 1000 WHERE account_id = 1;
+	UPDATE accounts SET balance = balance + 1000 WHERE account_id = 2;
+	COMMIT;
+
+If the second UPDATE fails:
+	ERROR: account_id 2 does not exist
+PostgreSQL puts the transaction into a failed state. The first update is not permanently saved, but the transaction is still open. You need:
+
+mysql> ROLLBACK;			//to cancel it.
