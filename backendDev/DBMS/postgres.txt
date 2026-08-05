@@ -1,0 +1,450 @@
+Postgres - Object-Relational DBMS
+SQL is a language to interact with DB
+
+To use postgres we can access database via cli - psql(official) or pgcli
+
++--------------------+-----------------------------------------------+
+| Meta Command       | Description                                   |
++--------------------+-----------------------------------------------+
+| `\?`               | Show help for all meta-commands               |
+| `\h`               | SQL command help                              |
+| `\q`               | Quit psql                                     |
+| `\c` or `\connect` | Connect to another database                   |
+| `\conninfo`        | Display current connection info               |
+| `\password username| Change a user's password                      |
+| `\l` or `\list`    | List databases                                |
+| `\dn`              | List schemas                                  |
+| `\dt`              | List tables                                   |
+| `\dt+`             | List tables with additional information       |
+| `\dv`              | List views                                    |
+| `\dm`              | List materialized views                       |
+| `\ds`              | List sequences                                |
+| `\di`              | List indexes                                  |
+| `\d`               | Describe a table, view, sequence, or index    |
+| `\d+`              | Detailed description of an object             |
+| `\df`              | List functions                                |
+| `\df+`             | Detailed function information                 |
+| `\da`              | List aggregate functions                      |
+| `\do`              | List operators                                |
+| `\du`              | List roles/users                              |
+| `\dg`              | List roles (same as `\du`)                    |
+| `\db`              | List tablespaces                              |
+| `\dx`              | List installed extensions                     |
+| `\dx+`             | Extension details                             |
+| `\dd`              | Show object descriptions/comments             |
+| `\dT`              | List data types                               |
+| `\dD`              | List domains                                  |
+| `\dFd`             | List text search dictionaries                 |
+| `\dFp`             | List text search parsers                      |
+| `\dFt`             | List text search templates                    |
+| `\dF`              | List text search configurations               |
+| `\encoding`        | Show or set client encoding                   |
+| `\timing`          | Toggle query timing                           |
+| `\x`               | Toggle expanded output                        |
+| `\a`               | Toggle aligned/unaligned output               |
+| `\H`               | Toggle HTML output                            |
+| `\pset`            | Change output format                          |
+| `\o`               | Send query output to a file                   |
+| `\i`               | Execute SQL commands from a file              |
+| `\ir`              | Execute a file using a relative path          |
+| `\g`               | Execute the current query                     |
+| `\gx`              | Execute query with expanded output            |
+| `\gexec`           | Execute query results as SQL                  |
+| `\gset`            | Store query result into variables             |
+| `\gdesc`           | Show column descriptions                      |
+| `\watch`           | Re-run a query every *n* seconds              |
+| `\copy`            | Import/export data between a file and a table |
+| `\echo`            | Print text or variables                       |
+| `\prompt`          | Prompt the user for input                     |
+| `\set`             | Set a variable                                |
+| `\unset`           | Remove a variable                             |
+| `\cd`              | Change current working directory              |
+| `\pwd`             | Show current working directory                |
+| `\!`               | Execute an operating system command           |
+| `\warn`            | Print a warning message                       |
+| `\errverbose`      | Show the most recent error with full details  |
+| `\copyright`       | Display PostgreSQL copyright information      |
++--------------------+-----------------------------------------------+
+Example commands:
+
+postgres> \?
++--------------------------------------+-----------------------------------------------------------------------------------+
+| Command                              | Description                                                                       |
+|--------------------------------------+-----------------------------------------------------------------------------------|
+| \! [command]                         | Pass commands to shell.                                                           |
+| \#                                   | Refresh auto-completions.                                                         |
+| \?                                   | Show Commands.                                                                    |
+| \T [format]                          | Change the table format used to output results                                    |
+| \c[onnect] database_name             | Change to a new database.                                                         |
+| \conninfo                            | Get connection details                                                            |
+| \copy [tablename] to/from [filename] | Copy data between a file and a table.                                             |
+| \d[+] [pattern]                      | List or describe tables, views and sequences.                                     |
+| \dD[+] [pattern]                     | List or describe domains.                                                         |
+| \dE[+] [pattern]                     | List foreign tables.                                                              |
+| \dF[+] [pattern]                     | List text search configurations.                                                  |
+| \dT[S+] [pattern]                    | List data types                                                                   |
+| \db[+] [pattern]                     | List tablespaces.                                                                 |
+| \ddp [pattern]                       | Lists default access privilege settings.                                          |
+| \df[+] [pattern]                     | List functions.                                                                   |
+| \di[+] [pattern]                     | List indexes.                                                                     |
+| \dm[+] [pattern]                     | List materialized views.                                                          |
+| \dn[+] [pattern]                     | List schemas.                                                                     |
+| \dp [pattern]                        | List privileges.                                                                  |
+| \ds[+] [pattern]                     | List sequences.                                                                   |
+| \dt[+] [pattern]                     | List tables.                                                                      |
+| \du[+] [pattern]                     | List roles.                                                                       |
+| \dv[+] [pattern]                     | List views.                                                                       |
+| \dx[+] [pattern]                     | List extensions.                                                                  |
+| \e [file]                            | Edit the query with external editor.                                              |
+| \echo [string]                       | Echo a string to stdout                                                           |
+| \h                                   | Show SQL syntax and help.                                                         |
+| \i filename                          | Execute commands from file.                                                       |
+| \l[+] [pattern]                      | List databases.                                                                   |
+| \log-file [filename]                 | Log all query results to a logfile, in addition to the normal output destination. |
+| \n[+] [name] [param1 param2 ...]     | List or execute named queries.                                                    |
+| \nd [name]                           | Delete a named query.                                                             |
+| \np name_pattern                     | Print a named query.                                                              |
+| \nq                                  | Toggle named query quiet mode (hide query text)                                   |
+| \ns name query                       | Save a named query.                                                               |
+| \o [filename]                        | Send all query results to file.                                                   |
+| \pager [command]                     | Set PAGER. Print the query results via PAGER.                                     |
+| \pset [key] [value]                  | A limited version of traditional \pset                                            |
+| \q                                   | Quit pgcli.                                                                       |
+| \qecho [string]                      | Echo a string to the query output channel.                                        |
+| \refresh                             | Refresh auto-completions.                                                         |
+| \sf[+] FUNCNAME                      | Show a function's definition.                                                     |
+| \timing                              | Toggle timing of commands.                                                        |
+| \v [on|off]                          | Toggle verbose errors.                                                            |
+| \watch [sec=2]                       | Execute query every `sec` seconds.                                                |
+| \x                                   | Toggle expanded output.                                                           |
+| quit                                 | Quit pgcli.                                                                       |
++--------------------------------------+-----------------------------------------------------------------------------------+
+postgres> create database org;
+CREATE DATABASE
+Time: 0.050s
+
+postgres> COPY employees								//copy from csv
+ FROM '/home/employees.csv'
+ WITH (FORMAT csv, HEADER);
+
+postgres> \l
+Or
+Postgres>  select datname from pg_database;
++-----------+----------+----------+---------+---------+-----------------------+
+| Name      | Owner    | Encoding | Collate | Ctype   | Access privileges     |
+|-----------+----------+----------+---------+---------+-----------------------|
+| org       | postgres | UTF8     | C.UTF-8 | C.UTF-8 | <null>                |
+| postgres  | postgres | UTF8     | C.UTF-8 | C.UTF-8 | <null>                |
+| template0 | postgres | UTF8     | C.UTF-8 | C.UTF-8 | =c/postgres           |
+|           |          |          |         |         | postgres=CTc/postgres |
+| template1 | postgres | UTF8     | C.UTF-8 | C.UTF-8 | =c/postgres           |
+|           |          |          |         |         | postgres=CTc/postgres |
++-----------+----------+----------+---------+---------+-----------------------+
+SELECT 4
+Time: 0.005s
+
+postgres> \c org
+You are now connected to database "org" as user "postgres"
+Time: 0.010s
+
+postgres> drop database org;
+DROP DATABASE
+_____________________________________________________________________________________
+DATATYPES:
+================================================================================
+                    POSTGRESQL DATA TYPES WITH EXAMPLES
+================================================================================
+
+CATEGORY: NUMERIC
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+smallint               Small-range integer (2 bytes)            100
+integer / int          Standard integer (4 bytes)               50000
+bigint                 Large-range integer (8 bytes)            9000000000
+decimal(p,s)           Exact decimal number                     12345.67
+numeric(p,s)           Exact precision decimal number           12345.67
+real                   Single-precision floating number         3.14
+double precision       Double-precision floating number         3.141592653589
+smallserial            Auto-incrementing small integer          1,2,3
+serial                 Auto-incrementing integer                1,2,3
+bigserial              Auto-incrementing large integer          10000000001
+
+
+CATEGORY: CHARACTER / STRING
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+char(n)                Fixed-length string                      'ABC   '
+varchar(n)             Variable-length string with limit        'John'
+text                   Unlimited-length string                  'PostgreSQL Database'
+
+
+CATEGORY: BOOLEAN
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+boolean / bool         Stores TRUE, FALSE, or NULL              TRUE
+
+
+CATEGORY: DATE & TIME
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+date                   Stores date only                         2026-08-05
+time                   Stores time only                         14:30:00
+time with time zone    Time with timezone                       14:30:00+05:30
+timestamp              Date and time without timezone           2026-08-05 14:30:00
+timestamptz            Date and time with timezone              2026-08-05 14:30:00+05:30
+interval               Stores time duration                     2 days
+
+
+CATEGORY: BINARY
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+bytea                  Stores binary data                       \x89504E47
+
+
+CATEGORY: JSON
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+json                   Stores JSON text                         {"name":"Alice"}
+jsonb                  Optimized binary JSON storage            {"name":"Alice","age":25}
+
+
+CATEGORY: ARRAY
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+datatype[]             Array of any supported type              {10,20,30}
+integer[]              Integer array                            {1,2,3}
+text[]                 Text array                               {'SQL','Postgres'}
+
+
+CATEGORY: RANGE
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+int4range              Range of integers                        [1,10)
+int8range              Range of big integers                    [100000,200000)
+numrange               Range of numeric values                  [1.5,5.5]
+tsrange                Timestamp range                          [2026-01-01,2026-12-31]
+tstzrange              Timestamp range with timezone            timezone timestamps
+daterange              Date range                               [2026-01-01,2026-01-31]
+
+
+CATEGORY: UUID
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+uuid                   Universally unique identifier            550e8400-e29b-41d4-a716-446655440000
+
+
+CATEGORY: ENUM
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+enum                   Custom list of allowed values            pending, approved, rejected
+
+
+CATEGORY: GEOMETRIC
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+point                  Stores x,y coordinates                   (10,20)
+line                   Infinite line                            {1,2,3}
+lseg                   Line segment                             [(1,2),(3,4)]
+box                    Rectangle shape                          (1,1),(5,5)
+path                   Open/closed path                         ((1,2),(3,4))
+polygon                Polygon shape                            ((0,0),(5,0),(5,5))
+circle                 Circle shape                             <(5,5),10>
+
+
+CATEGORY: NETWORK ADDRESS
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+inet                   IPv4/IPv6 address                        192.168.1.10
+cidr                   Network address                          192.168.1.0/24
+macaddr                MAC address                              08:00:2b:01:02:03
+macaddr8               8-byte MAC address                       08:00:2b:ff:fe:01:02:03
+
+
+CATEGORY: FULL TEXT SEARCH
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+tsvector               Searchable document text                 'postgres database'
+tsquery                Text search query                        'postgres & database'
+
+
+CATEGORY: COMPOSITE
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+Composite Type         User-defined type with multiple fields   (Street, City, Zip)
+
+
+CATEGORY: OBJECT IDENTIFIER
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+oid                    PostgreSQL internal object ID            12345
+regclass               Table identifier                         'users'::regclass
+regtype                Data type identifier                     'integer'::regtype
+
+
+CATEGORY: SPECIAL PURPOSE
+--------------------------------------------------------------------------------
+Data Type              Description                              Example
+--------------------------------------------------------------------------------
+money                  Currency value                           $100.50
+pg_lsn                 WAL log sequence number                  16/B374D848
+txid_snapshot          Transaction snapshot                     10:20:30
+void                   No return value                          NULL
+
+
+================================================================================
+                 COMMONLY USED TYPES IN APPLICATIONS
+================================================================================
+
+Purpose                 Recommended Type              Example
+--------------------------------------------------------------------------------
+User ID                 uuid / serial                 550e8400-e29b...
+Name                    varchar / text                'John Smith'
+Age                     integer                       25
+Price                   numeric(10,2)                 1999.99
+Status                  enum                          'active'
+Created Date            timestamp                     2026-08-05 10:30:00
+Settings                jsonb                         {"theme":"dark"}
+Tags                    text[]                        {'sql','database'}
+IP Address              inet                          192.168.1.1
+
+____________________________________________________________________________________________________________________________________________________________________________
+CONSTRAINTS
+
+PRIMARY KEY      Uniquely identifies each row in a table.
+                 Automatically enforces NOT NULL and UNIQUE.
+                 A table can have only one primary key.
+                 Example: id INT PRIMARY KEY
+FOREIGN KEY      Ensures values in one table match values
+                 in another table.
+                 Maintains relationship between tables.
+                 Example: customer_id INT REFERENCES customers(id)
+UNIQUE           Ensures all values in a column or group
+                 of columns are different.
+                 Allows NULL values.
+                 Example: email VARCHAR(100) UNIQUE
+NOT NULL         Prevents a column from storing NULL values.
+                 The column must always have a value.
+                 Example: name TEXT NOT NULL
+CHECK            Ensures values satisfy a specified condition
+                 before insertion or update.
+                 Example: age INT CHECK(age >= 18)
+DEFAULT          Assigns a default value to a column when
+                 no value is provided during insertion.
+                 Example: status TEXT DEFAULT 'active'
+EXCLUSION        Prevents rows from conflicting based on
+                 a specified operator condition.
+                 Commonly used for ranges and scheduling.
+                 Example:EXCLUDE USING gist
+                 (room WITH =, booking_time WITH &&)
+__________________________________________________________________________________________________________________________________________________________________________
+CRUD OPERATIONS:
+
+postgres> create table Employee(id int, name varchar(100),city VARCHAR(100));
+CREATE TABLE
+Time: 0.004s
+postgres> \dt										//list tables
++--------+----------+-------+----------+
+| Schema | Name     | Type  | Owner    |
+|--------+----------+-------+----------|
+| public | employee | table | postgres |
++--------+----------+-------+----------+
+SELECT 1
+Time: 0.006s
+
+postgres> \d employee									//describe table employee
++--------+------------------------+-----------+
+| Column | Type                   | Modifiers |
+|--------+------------------------+-----------|
+| id     | integer                |           |
+| name   | character varying(100) |           |
+| city   | character varying(100) |           |
++--------+------------------------+-----------+
+Time: 0.012s
+
+postgres> insert into employee(id, name, city) values(1, 'Raju', 'Delhi')(2, 'Ravi', 'Mysore'),(3, 'siddu', 'Mandya');
+INSERT 0 3
+Time: 0.003s
+
+postgres> select * from employee;
++----+-------+--------+
+| id | name  | city   |
+|----+-------+--------|
+| 1  | Raju  | Delhi  |
+| 2  | Ravi  | Mysore |
+| 3  | siddu | Mandya |
++----+-------+--------+
+SELECT 3
+Time: 0.004s
+
+postgres> update employee set city = 'Bangalore' where id = 1;
+You're about to run a destructive command.
+Do you want to proceed? [y/N]: y
+Your call!
+UPDATE 1
+Time: 0.006s
+postgres> select * from employee;
++----+-------+-----------+
+| id | name  | city      |
+|----+-------+-----------|
+| 2  | Ravi  | Mysore    |
+| 3  | siddu | Mandya    |
+| 1  | Raju  | Bangalore |
++----+-------+-----------+
+SELECT 3
+Time: 0.005s
+
+postgres> delete from employee where id = 3;
+You're about to run a destructive command.
+Do you want to proceed? [y/N]: y
+Your call!
+DELETE 1
+Time: 0.003s
+_____________________________________________________________________________________
+postgres> \h
++--------------------+-----------------------------+----------------------+----------------------------+---------------------------+--------------------------+
+| ABORT              | ALTER AGGREGATE             | ALTER COLLATION      | ALTER CONVERSION           | ALTER DATABASE            | ALTER DEFAULT PRIVILEGES |
+| ALTER DOMAIN       | ALTER EVENT TRIGGER         | ALTER EXTENSION      | ALTER FOREIGN DATA WRAPPER | ALTER FOREIGN TABLE       | ALTER FUNCTION           |
+| ALTER GROUP        | ALTER INDEX                 | ALTER LANGUAGE       | ALTER LARGE OBJECT         | ALTER MATERIALIZED VIEW   | ALTER OPCLASS            |
+| ALTER OPERATOR     | ALTER OPFAMILY              | ALTER POLICY         | ALTER ROLE                 | ALTER RULE                | ALTER SCHEMA             |
+| ALTER SEQUENCE     | ALTER SERVER                | ALTER SYSTEM         | ALTER TABLE                | ALTER TABLESPACE          | ALTER TRIGGER            |
+| ALTER TSCONFIG     | ALTER TSDICTIONARY          | ALTER TSPARSER       | ALTER TSTEMPLATE           | ALTER TYPE                | ALTER USER               |
+| ALTER USER MAPPING | ALTER VIEW                  | ANALYZE              | BEGIN                      | CHECKPOINT                | CLOSE                    |
+| CLUSTER            | COMMENT                     | COMMIT               | COMMIT PREPARED            | COPY                      | CREATE AGGREGATE         |
+| CREATE CAST        | CREATE COLLATION            | CREATE CONVERSION    | CREATE DATABASE            | CREATE DOMAIN             | CREATE EVENT TRIGGER     |
+| CREATE EXTENSION   | CREATE FOREIGN DATA WRAPPER | CREATE FOREIGN TABLE | CREATE FUNCTION            | CREATE GROUP              | CREATE INDEX             |
+| CREATE LANGUAGE    | CREATE MATERIALIZED VIEW    | CREATE OPCLASS       | CREATE OPERATOR            | CREATE OPFAMILY           | CREATE POLICY            |
+| CREATE ROLE        | CREATE RULE                 | CREATE SCHEMA        | CREATE SEQUENCE            | CREATE SERVER             | CREATE TABLE             |
+| CREATE TABLE AS    | CREATE TABLESPACE           | CREATE TRANSFORM     | CREATE TRIGGER             | CREATE TSCONFIG           | CREATE TSDICTIONARY      |
+| CREATE TSPARSER    | CREATE TSTEMPLATE           | CREATE TYPE          | CREATE USER                | CREATE USER MAPPING       | CREATE VIEW              |
+| DEALLOCATE         | DECLARE                     | DELETE               | DISCARD                    | DO                        | DROP AGGREGATE           |
+| DROP CAST          | DROP COLLATION              | DROP CONVERSION      | DROP DATABASE              | DROP DOMAIN               | DROP EVENT TRIGGER       |
+| DROP EXTENSION     | DROP FOREIGN DATA WRAPPER   | DROP FOREIGN TABLE   | DROP FUNCTION              | DROP GROUP                | DROP INDEX               |
+| DROP LANGUAGE      | DROP MATERIALIZED VIEW      | DROP OPCLASS         | DROP OPERATOR              | DROP OPFAMILY             | DROP OWNED               |
+| DROP POLICY        | DROP ROLE                   | DROP RULE            | DROP SCHEMA                | DROP SEQUENCE             | DROP SERVER              |
+| DROP TABLE         | DROP TABLESPACE             | DROP TRANSFORM       | DROP TRIGGER               | DROP TSCONFIG             | DROP TSDICTIONARY        |
+| DROP TSPARSER      | DROP TSTEMPLATE             | DROP TYPE            | DROP USER                  | DROP USER MAPPING         | DROP VIEW                |
+| END                | EXECUTE                     | EXPLAIN              | FETCH                      | GRANT                     | IMPORT FOREIGN SCHEMA    |
+| INSERT             | LISTEN                      | LOAD                 | LOCK                       | MOVE                      | NOTIFY                   |
+| PGBENCH            | PREPARE                     | PREPARE TRANSACTION  | REASSIGN OWNED             | REFRESH MATERIALIZED VIEW | REINDEX                  |
+| RELEASE SAVEPOINT  | RESET                       | REVOKE               | ROLLBACK                   | ROLLBACK PREPARED         | ROLLBACK TO              |
+| SAVEPOINT          | SECURITY LABEL              | SELECT               | SELECT INTO                | SET                       | SET CONSTRAINTS          |
+| SET ROLE           | SET SESSION AUTH            | SET TRANSACTION      | SHOW                       | START TRANSACTION         | TRUNCATE                 |
+| UNLISTEN           | UPDATE                      | VACUUM               | VALUES                     |                           |                          |
++--------------------+-----------------------------+----------------------+----------------------------+---------------------------+--------------------------+
+Time: 0.006s
+
