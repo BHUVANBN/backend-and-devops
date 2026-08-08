@@ -764,6 +764,25 @@ mysql> select * from worker where dept is null;						//IS NULL
 +-----------+------------+-----------+--------+---------------------+------+
 |         8 | Mani       | Aurora    | 100000 | 2014-09-20 09:00:00 | NULL |
 +-----------+------------+-----------+--------+---------------------+------+
+
+CASE in SQL
+mysql> SELECT first_name, salary, 
+	CASE WHEN salary > 50000 THEN 'High' ELSE 'low' END AS high_salary 
+	FROM worker;
++------------+--------+-------------+
+| first_name | salary | high_salary |
++------------+--------+-------------+
+| Monika     | 100000 | High        |
+| Niharika   |  80000 | High        |
+| Vishal     | 300000 | High        |
+| Amitabh    | 500000 | High        |
+| Vivek      | 500000 | High        |
+| Vipul      | 200000 | High        |
+| Satish     |  75000 | High        |
+| Geetika    |  90000 | High        |
+| Rahul      |  50000 | low         |
+| Priya      |  60000 | High        |
++------------+--------+-------------+
 ____________________________________________________________________________________________________________________________________________________________________________
 PATTERN MATCHING - using LIKE, like is used for pattern matching
 
@@ -1380,6 +1399,12 @@ mysql> SELECT RIGHT(first_name, 2) FROM worker;								//right()
 | sh                   |
 | ka                   |
 +----------------------+
+mysql> SELECT POSITION('on' in 'Monika');								//check the position of chracter
++----------+
+| POSITION |
++----------+
+| 2        |
++----------+
 
 2. Numeric Functions:
 
@@ -2098,5 +2123,14 @@ mysql> BEGIN;
 If the second UPDATE fails:
 	ERROR: account_id 2 does not exist
 PostgreSQL puts the transaction into a failed state. The first update is not permanently saved, but the transaction is still open. You need:
-
 mysql> ROLLBACK;			//to cancel it.
+
+Eg 2:
+
+mysql> BEGIN;											//begin transaction
+mysql> UPDATE accounts SET balance = balance - 100.00 WHERE name = 'Alice';
+mysql> SAVEPOINT my_savepoint;								//Creates a checkpoint inside the transaction.
+mysql> UPDATE accounts SET balance = balance + 100.00 WHERE name = 'Bob';			//wrong execution
+mysql> ROLLBACK TO my_savepoint;								//rollback to the save point
+mysql> UPDATE accounts SET balance = balance + 100.00 WHERE name = 'Wally';
+mysql> COMMIT;											//permanently save changes

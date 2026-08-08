@@ -448,3 +448,596 @@ postgres> \h
 +--------------------+-----------------------------+----------------------+----------------------------+---------------------------+--------------------------+
 Time: 0.006s
 
+
+
+
+
+
+Views :
+
+postgres> create view emp_v as select first_name, gender, salary from employees;		//creating view
+CREATE VIEW
+Time: 0.006s
+postgres> \dt									//views are not in tables
++--------+-------------+-------+----------+
+| Schema | Name        | Type  | Owner    |
+|--------+-------------+-------+----------|
+| public | departments | table | postgres |
+| public | employees   | table | postgres |
++--------+-------------+-------+----------+
+SELECT 2
+Time: 0.006s
+postgres> select * from emp_v;
++-------------+--------+-----------+
+| first_name  | gender | salary    |
+|-------------+--------+-----------|
+| Douglas     | Male   | 97308.00  |
+| Thomas      | Male   | 61933.00  |
+| Maria       | Female | 130590.00 |
+| Jerry       | Male   | 138705.00 |
+| Larry       | Male   | 101004.00 |
+| Dennis      | Male   | 115163.00 |
+| Ruby        | Female | 65476.00  |
+| <null>      | Female | 45906.00  |
+| Angela      | Female | 95570.00  |
+| Frances     | Female | 139852.00 |
+| Louise      | Female | 63241.00  |
++-------------+--------+-----------+
+SELECT 1000
+Time: 0.032s
+postgres> \dv									//describe views, they are in separate list in postgres				
++--------+-------+------+----------+
+| Schema | Name  | Type | Owner    |
+|--------+-------+------+----------|
+| public | emp_v | view | postgres |
++--------+-------+------+----------+
+SELECT 1
+Time: 0.006s
+
+
+
+
+
+Stored procedures:
+
+postgres> CREATE OR REPLACE PROCEDURE s_proc(							Creating stored procedure
+    name VARCHAR(10),
+    g VARCHAR(10),
+    sd DATE,
+    ti TIME,
+    s FLOAT,
+    b FLOAT,
+    sm BOOLEAN,
+    t VARCHAR(10)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO employees(
+        first_name,
+        gender,
+        start_date,
+        last_login_time,
+        salary,
+        bonus_percent,
+        senior_management,
+        team
+    )
+    VALUES (
+        name,
+        g,
+        sd,
+        ti,
+        s,
+        b,
+        sm,
+        t
+    );
+END;
+$$;
+
+postgres> CALL s_proc(									Calling stored procedure
+    'bhuvan',
+    'male',
+    '2026-03-04',
+    '13:00:00',
+    1200000.8,
+    21.3,
+    FALSE,
+    'Finance'
+);
+
+
+
+
+
+
+
+User defined function:
++----------------------+-----------------------------+----------------------+
+| Feature              | Function                    | Procedure            |
++----------------------+-----------------------------+----------------------+
+| Introduced           | Old PostgreSQL feature      | PostgreSQL 11+       |
+| Execute              | SELECT                      | CALL                 |
+| Returns value        | Yes                         | No direct return     |
+| Returns table        | Yes                         | No                   |
+| Used inside SQL      | Yes                         | No                   |
+| Can contain SQL      | Yes                         | Yes                  |
+| Can contain PL/pgSQL | Yes                         | Yes                  |
+| Can use variables    | Yes                         | Yes                  |
+| Can use loops        | Yes                         | Yes                  |
+| Can COMMIT/ROLLBACK  | No                          | Yes                  |
+| Best for             | Calculations/data retrieval | Business workflows   |
++----------------------+-----------------------------+----------------------+
+postgres> CREATE OR REPLACE FUNCTION get_salary(emp_id INT)
+ RETURNS NUMERIC
+ LANGUAGE plpgsql
+ AS $$
+ DECLARE
+     emp_salary NUMERIC;
+ BEGIN
+     SELECT salary
+     INTO emp_salary
+     FROM employees
+     WHERE employee_id = emp_id;
+ 
+     RETURN emp_salary;
+ END;
+ $$;
+CREATE FUNCTION
+Time: 0.002s
+postgres> SELECT get_salary(5);
++------------+
+| get_salary |
+|------------|
+| 101004.00  |
++------------+
+SELECT 1
+Time: 0.007s
+postgres> CREATE OR REPLACE FUNCTION get_employee(emp_id INT)
+ RETURNS TABLE (
+     first_name VARCHAR,
+     gender VARCHAR,
+     salary NUMERIC,
+     team VARCHAR
+ )
+ LANGUAGE plpgsql
+ AS $$
+ BEGIN
+     RETURN QUERY
+     SELECT
+         e.first_name,
+         e.gender,
+         e.salary,
+         e.team
+     FROM employees e
+     WHERE e.employee_id = emp_id;
+ END;
+ $$;
+CREATE FUNCTION
+Time: 0.005s
+postgres> SELECT * FROM get_employee(10);
++------------+--------+-----------+----------------------+
+| first_name | gender | salary    | team                 |
+|------------+--------+-----------+----------------------|
+| Frances    | Female | 139852.00 | Business Development |
++------------+--------+-----------+----------------------+
+SELECT 1
+Time: 0.005s
+
+
+
+
+Window Functions in PostgreSQL
+A window function performs a calculation across a set of rows that are related to the current row, "without collapsing the rows".
+
+The key difference:
+GROUP BY combines rows into one row per group.
+Window functions keep every row and add calculated information.
+
+Example table: employees
+| employee_id | first_name | team      | salary |
+| ----------- | ---------- | --------- | ------ |
+| 1           | Douglas    | Marketing | 97308  |
+| 2           | Thomas     | Finance   | 61933  |
+| 3           | Maria      | Finance   | 130590 |
+| 4           | John       | Marketing | 85000  |
+
+GROUP BY
+pgsql>SELECT
+    team,
+    AVG(salary) AS avg_salary
+FROM employees
+GROUP BY team;
+
+Result:
+| team      | avg_salary |
+| --------- | ---------- |
+| Marketing | 91154      |
+| Finance   | 96261.5    |
+The employee details disappear.
+
+Window Function
+pgsql>SELECT
+    first_name,
+    team,
+    salary,
+    AVG(salary) OVER(PARTITION BY team) AS team_avg
+FROM employees;
+
+Result:
+| first_name | team      | salary | team_avg |
+| ---------- | --------- | ------ | -------- |
+| Douglas    | Marketing | 97308  | 91154    |
+| John       | Marketing | 85000  | 91154    |
+| Thomas     | Finance   | 61933  | 96261.5  |
+| Maria      | Finance   | 130590 | 96261.5  |
+The original rows remain.
+
+
+Syntax:General form:
+	function_name() OVER( PARTITION BY column ORDER BY column )
+Example:
+pgsql> select AVG(salary) OVER(PARTITION BY team) from employees;
+
+
+1. ROW_NUMBER(): Assigns a unique number to each row.
+
+pgsql> SELECT first_name, salary,
+       ROW_NUMBER() OVER(
+          ORDER BY salary DESC
+       ) AS rank
+       FROM employees;
+
+Result:
+| name    | salary | rank |
+| ------- | ------ | ---- |
+| Maria   | 130590 | 1    |
+| Douglas | 97308  | 2    |
+| Thomas  | 61933  | 3    |
+
+
+2. RANK(): Ranks rows but leaves gaps when values are equal.
+
+Example:
+| name  | salary |
+| ----- | ------ |
+| Maria | 100000 |
+| John  | 90000  |
+| Alex  | 90000  |
+| Bob   | 80000  |
+
+Query:
+pgsql> SELECT
+       first_name, salary,
+       RANK() OVER(
+           ORDER BY salary DESC
+       )
+       FROM employees;
+
+Result:
+| name  | salary | rank |
+| ----- | ------ | ---- |
+| Maria | 100000 | 1    |
+| John  | 90000  | 2    |
+| Alex  | 90000  | 2    |
+| Bob   | 80000  | 4    |
+
+Notice rank 3 is skipped.
+
+3. DENSE_RANK(): Same as rank but no gaps.
+
+pgsql> SELECT
+       first_name, salary,
+       DENSE_RANK() OVER(
+           ORDER BY salary DESC
+       )
+       FROM employees;
+
+Result:
+| name  | salary | rank |
+| ----- | ------ | ---- |
+| Maria | 100000 | 1    |
+| John  | 90000  | 2    |
+| Alex  | 90000  | 2    |
+| Bob   | 80000  | 3    |
+
+4. Ranking inside groups
+Example:
+Rank employees inside each team.
+
+pgsql> SELECT
+       first_name, team, salary,
+       RANK() OVER(
+           PARTITION BY team
+           ORDER BY salary DESC
+       ) AS team_rank
+       FROM employees;
+
+Result:
+| name    | team      | salary | rank |
+| ------- | --------- | ------ | ---- |
+| Maria   | Finance   | 130590 | 1    |
+| Thomas  | Finance   | 61933  | 2    |
+| Douglas | Marketing | 97308  | 1    |
+| John    | Marketing | 85000  | 2    |
+
+`PARTITION BY` creates separate windows.
+
+5. Running total
+Example:
+pgsql> SELECT
+       first_name, salary,
+       SUM(salary) OVER(
+           ORDER BY employee_id
+       ) AS running_total
+       FROM employees;
+
+Result:
+| name    | salary | running_total |
+| ------- | ------ | ------------- |
+| Douglas | 97308  | 97308         |
+| Thomas  | 61933  | 159241        |
+| Maria   | 130590 | 289831        |
+
+Each row sees previous rows.
+
+
+6. LAG(): Access previous row.
+Example:
+
+pgsql> SELECT
+       first_name, salary,
+       LAG(salary) OVER(
+           ORDER BY employee_id
+       ) AS previous_salary
+       FROM employees;
+
+Result:
+| name    | salary | previous_salary |
+| ------- | ------ | --------------- |
+| Douglas | 97308  | NULL            |
+| Thomas  | 61933  | 97308           |
+| Maria   | 130590 | 61933           |
+
+
+7. LEAD(): Access next row.
+
+pgsql> SELECT
+       first_name, salary,
+       LEAD(salary) OVER(
+           ORDER BY employee_id
+       ) AS next_salary
+       FROM employees;
+
+Result:
+| name    | salary | next_salary |
+| ------- | ------ | ----------- |
+| Douglas | 97308  | 61933       |
+| Thomas  | 61933  | 130590      |
+| Maria   | 130590 | NULL        |
+
+8. FIRST_VALUE(): Get first value in a window.
+
+pgsql> SELECT
+       first_name, team, salary,
+       FIRST_VALUE(first_name)
+       OVER(
+           PARTITION BY team
+           ORDER BY salary DESC
+       ) AS highest_paid
+       FROM employees;
+
+Result:
+| name    | team      | highest_paid |
+| ------- | --------- | ------------ |
+| Maria   | Finance   | Maria        |
+| Thomas  | Finance   | Maria        |
+| Douglas | Marketing | Douglas      |
+
+9. LAST_VALUE(): Get last value in a window.
+
+pgsql> SELECT
+       first_name, salary,
+       LAST_VALUE(first_name)
+       OVER(
+           ORDER BY salary
+       )
+       FROM employees;
+
+10. NTILE(): Divide rows into groups.
+
+Example: Divide employees into 4 salary groups.
+
+pgsql>
+SELECT
+    first_name,
+    salary,
+    NTILE(4) OVER(
+        ORDER BY salary
+    ) AS salary_group
+FROM employees;
+```
+
+---
+
+# Window functions with your employees table
+
+### Find highest-paid employee in each team:
+
+pgsql>SELECT * FROM
+(
+    SELECT first_name, team, salary,
+        RANK() OVER(
+            PARTITION BY team
+            ORDER BY salary DESC
+        ) AS rnk
+    FROM employees
+) x
+WHERE rnk = 1;
+```
+
+Output:
+
+| name    | team      | salary |
+| ------- | --------- | ------ |
+| Maria   | Finance   | 130590 |
+| Douglas | Marketing | 97308  |
+
+---
+
+# Window functions execution order
+
+Logical SQL order:
+
+```
+FROM
+ ↓
+WHERE
+ ↓
+GROUP BY
+ ↓
+HAVING
+ ↓
+WINDOW FUNCTIONS
+ ↓
+SELECT
+ ↓
+ORDER BY
+ ↓
+LIMIT
+```
+
+This is why you cannot normally use a window function directly in `WHERE`.
+
+Wrong:
+
+```sql
+SELECT *
+FROM employees
+WHERE RANK() OVER(ORDER BY salary)=1;
+```
+
+Correct:
+
+```sql
+SELECT *
+FROM
+(
+    SELECT *,
+    RANK() OVER(ORDER BY salary) r
+    FROM employees
+) x
+WHERE r=1;
+```
+
+---
+
+## Main PostgreSQL window functions to learn
+
+| Category     | Functions                                                   |
+| ------------ | ----------------------------------------------------------- |
+| Ranking      | `ROW_NUMBER()`, `RANK()`, `DENSE_RANK()`                    |
+| Navigation   | `LAG()`, `LEAD()`                                           |
+| Value        | `FIRST_VALUE()`, `LAST_VALUE()`, `NTH_VALUE()`              |
+| Aggregates   | `SUM()`, `AVG()`, `COUNT()`, `MIN()`, `MAX()` with `OVER()` |
+| Distribution | `NTILE()`, `PERCENT_RANK()`, `CUME_DIST()`                  |
+
+Window functions are one of the most important PostgreSQL topics for analytics, reporting, ranking, and data engineering.
+
+
+
+
+
+CTE - A CTE (Common Table Expression) in PostgreSQL is a temporary, named result set that you define at the beginning of a query using the WITH keyword. It helps make complex SQL queries more readable and reusable.
+
+Syntax:
+WITH cte_name AS (
+    SELECT ...
+)
+SELECT *
+FROM cte_name;
+
+It can be implemented using sub queries but more useful in complicated calculation that you need to use multiple times.
+
+Using SUB-QUERY:
+SELECT *
+FROM employees
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employees
+);
+
+Using CTE:
+WITH avg_salary AS (
+    SELECT AVG(salary) AS avg_sal
+    FROM employees
+)
+SELECT *
+FROM employees
+WHERE salary > (
+    SELECT avg_sal
+    FROM avg_salary
+);
+
+
+Complex calculation using CTE:
+
+WITH department_stats AS (
+    SELECT
+        department_id,
+        AVG(salary) AS avg_salary,
+        MAX(salary) AS max_salary
+    FROM employees
+    GROUP BY department_id
+)
+SELECT
+    e.name,
+    e.salary,
+    d.avg_salary,
+    d.max_salary
+FROM employees e
+JOIN department_stats d
+    ON e.department_id = d.department_id
+WHERE e.salary > d.avg_salary;
+
+
+Multiple CTE:
+
+WITH
+department_avg AS (
+    SELECT department_id, AVG(salary) AS avg_salary
+    FROM employees
+    GROUP BY department_id
+),
+high_earners AS (
+    SELECT *
+    FROM employees e
+    JOIN department_avg d
+      ON e.department_id = d.department_id
+    WHERE e.salary > d.avg_salary
+)
+SELECT *
+FROM high_earners;
+
+
+
+Triggers: In PostgreSQL, a trigger is a mechanism that automatically executes a function when a particular event happens on a table (or other database object).
+
+First we need to create a trigger function:
+CREATE OR REPLACE FUNCTION set_created_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.created_at := CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+Then create trigger:
+CREATE OR REPLACE FUNCTION set_created_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.created_at := CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
