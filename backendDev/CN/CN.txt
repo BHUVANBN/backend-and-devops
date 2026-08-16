@@ -1,21 +1,110 @@
-Computer Networking:
+Computer Networking: Devices, Architecture/model, Protocols
 
 Computer network - Computer connected together
 Internet - collection of Computer Networks
 
-ARPAnet - Advance research Projects agency, By USA - first network (MIT, Stanford, UCLA, Utah), used TCP
+History:
+ARPAnet(1960) - Advance research Projects agency, By USA - first network (MIT, Stanford, UCLA, Utah), used TCP
+TCP/IP (1970s)
+Email + DNS(1980s)
+WWW and Dot-com Boom(1990s)
+Broadband and Mobile internet(2000s)
+Social Media and Web2.0(2000 - 2010)
+Cloud(2010s)
+5G and IOT(2020s)
+______________________________________________________________________________________________
+Architecture:
+Network Edges(devices - pc, NIC, Access Point, Ethernet Switch, home router) ----- Access Networks(ISP Edge Router) ----- Network core (ISP Core Routers)
 
-Protocols - rules defined to communicate on networks, defined by Internet Society.
-Eg: TCP, UDP, HTTP, HTTPS
-
+Network edges - consists of hosts
+Hosts - devices (client and servers), data centres, mobile phone, pc
 Client Server Architecture for communication via websites and webpages through packets.
+
+Access Networks - connects end systems to routers
+Home access networks - uses dsl, cable internet, fibre optics connections 
+Mobile access networks - cellular, 5G, wifi
+Institutional Access Network - uses Routers, switches and complex network architecture
+
+Network core - interconnected routers and systems
+performs forwarding and routing
+	Forwarding - each router uses forwarding table which contains the destination address and next router address to reach the destination
+	Routing - moving packets from src to dest in a path, uses algorithms - OSPF, BGP, 		
+Routers used to route packets in network, operates by packet switching
+Packets - chunks of data with src and dest address
+______________________________________________________________________________________________
+              SENDER
+┌─────────────────────────────────────┐
+│ Application                         │
+│       ↓                             │
+│ HTTP / DNS / etc.                   │
+│       ↓                             │
+│ TCP / UDP / QUIC                    │
+│       ↓                             │
+│ IP                                  │
+│       ↓                             │
+│ Ethernet / Wi-Fi                    │
+│       ↓                             │
+│ NIC                                 │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+        Physical medium
+     Wi-Fi / Copper / Fiber
+               │
+               ▼
+        Access Point
+               │
+               ▼
+        Home Router
+               │
+               ▼
+        ISP Access Network
+               │
+               ▼
+        ISP Edge Router
+               │
+               ▼
+        ISP Core Routers
+               │
+               ▼
+        Transit Routers
+               │
+               ▼
+        Destination ISP
+               │
+               ▼
+        Destination Router
+               │
+               ▼
+        Destination Switch/AP
+               │
+               ▼
+        DESTINATION NIC
+               │
+               ▼
+          Ethernet/Wi-Fi
+               │
+               ▼
+              IP
+               │
+               ▼
+          TCP/UDP/QUIC
+               │
+               ▼
+          TLS / HTTP
+               │
+               ▼
+        DESTINATION APP
+______________________________________________________________________________________________
+Protocols - rules defined to communicate on networks, defined by Internet Society.
+Eg: TCP, UDP, IP, HTTP, HTTPS
 
 DNS - Domain Name server - list of ip address and domain name
 eg: https://google.com    172.217.19.164
 
 ISP - internet Service provider providers modem/router which has a global ip address and the devices connected by it is assigned local ip addresses by DHCP (Dynamic host control protocol)
 
-IP Address is a address of a device on network
+IP Address is a address of a device on network layer
 Port - address for every applications in the device, 16 bit number so total ports available = 2^16 = 65,536
 Reserved ports - 0 to 1023 - Used by standard services and protocols
 Registered ports - 1024–49151 - Used by applications and services registered with IANA.
@@ -67,7 +156,12 @@ NETWORK DEVICES AND THEIR OSI LAYERS
 - Examples:
   - Ethernet network card
   - Wi-Fi adapter
-
+- Receives bits and formatted into a frame 
+[dest Mac | src Mac | dest IP | src IP | data | Frame Check Seq ]
+CRC is calculated and if it is matched with CRC in the FCS in frame it checks the dest Mac with the NIC Mac and processes the data by creating packet with 
+ | dest IP | src IP | data |
+If CRC does not match it discards the frame
+- does the reverse process when sending packets
 OSI Layer: Layer 1 + Layer 2
 
 
@@ -554,12 +648,12 @@ Physical Layer     -> Bits
 
 IMPORTANT:
 -----------
-TCP      = Transport Layer
-UDP      = Transport Layer
 FTP      = Application Layer
 HTTP     = Application Layer
 HTTPS    = Application Layer
 DNS      = Application Layer
+TCP      = Transport Layer
+UDP      = Transport Layer
 IP       = Network Layer
 Ethernet = Data Link Layer
 Wi-Fi    = Data Link + Physical Layer functions
@@ -573,13 +667,13 @@ Network Layer
 Data Link Layer
 Physical Layer
 
-Application
+Application   -> Adds HTTPm header to data
      |
      v
-Transport     -> Adds Port Numbers
+Transport     -> Adds Port Numbers (tcp header)
      |
      v
-Network       -> Adds Source/Destination IP Addresses
+Network       -> Adds Source/Destination IP Addresses (IP header)
      |
      v
 Data Link     -> Adds Source/Destination MAC Addresses
