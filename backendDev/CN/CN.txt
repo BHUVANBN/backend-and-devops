@@ -99,12 +99,20 @@ ________________________________________________________________________________
 Protocols - rules defined to communicate on networks, defined by Internet Society.
 Eg: TCP, UDP, IP, HTTP, HTTPS
 
+IP Address is a address of a device on network layer
+
+MAC address device physical address hardcoded on Network interface card to identify device
+To know MAC address - networksetup -getmacaddress Wi-Fi
+IP address tells the network layer where the destination is.
+MAC address tells the Ethernet/data-link layer which device on the local network should receive the frame. Ethernet needs a MAC address to work.
+
 DNS - Domain Name server - list of ip address and domain name
 eg: https://google.com    172.217.19.164
 
-ISP - internet Service provider providers modem/router which has a global ip address and the devices connected by it is assigned local ip addresses by DHCP (Dynamic host control protocol)
+DHCP - internet Service provider providers modem/router which has a global ip address and the devices connected by it is assigned local ip addresses by DHCP (Dynamic host control protocol)
 
-IP Address is a address of a device on network layer
+ARP - Address Resolution Protocol, happens between the Network layer and Data Link layer, when a device needs to send an IPv4 packet to another device on the same local network
+
 Port - address for every applications in the device, 16 bit number so total ports available = 2^16 = 65,536
 Reserved ports - 0 to 1023 - Used by standard services and protocols
 Registered ports - 1024–49151 - Used by applications and services registered with IANA.
@@ -471,46 +479,6 @@ ACCESS POINT
 - Bridges wireless devices to a wired LAN
 - Mainly Layer 2
 
-
-OSI LAYER QUICK REFERENCE
-=========================
-
-Layer 7 - Application
-         DHCP, DNS, HTTP, FTP, SMTP
-         Proxy, WAF, Application Gateway
-
-Layer 6 - Presentation
-         Data formatting, encryption, compression
-
-Layer 5 - Session
-         Session establishment/management
-
-Layer 4 - Transport
-         TCP, UDP
-         Layer 4 Load Balancer
-         Port numbers
-
-Layer 3 - Network
-         IP, Routing
-         Router
-         Layer 3 Switch
-         Packet-filtering Firewall
-
-Layer 2 - Data Link
-         Ethernet, Wi-Fi
-         MAC addresses
-         Switch
-         Bridge
-         Access Point
-         NIC
-
-Layer 1 - Physical
-         Cables, fiber, radio signals
-         Repeater
-         Hub
-         Physical part of NIC
-
-
 SIMPLE NETWORK
 ==============
 
@@ -535,14 +503,8 @@ ISP
    v
 Internet
 
-
-IMPORTANT NOTE
-==============
-
 A single modern device can perform multiple functions.
-
 For example, a home "Wi-Fi router" may actually contain:
-
 - Router
 - Ethernet switch
 - Wireless Access Point
@@ -680,3 +642,12 @@ Data Link     -> Adds Source/Destination MAC Addresses
      |
      v
 Physical      -> Transmits Bits as Light/Electrical/Radio Signals
+____________________________________________________________________________________________________________________________________________________________________________________________
+Network protocols:
+
+Application layer - http, https, dns, DHCP, ftp, smtp, pop3/imap, ssh, vnc, telnet, websocket
+Transport layer - tcp, udp
+Network layer - ipv4, ipv6, icmp, arp
+	routing protocols - ospf, bgp
+Datalink layer - ethernet, vlan, wifi(wpa2, wpa3)
+	security protocols - tls, ssl, ssh
