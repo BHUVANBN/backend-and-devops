@@ -14,7 +14,7 @@ Cloud(2010s)
 5G and IOT(2020s)
 ______________________________________________________________________________________________
 Architecture:
-Network Edges(devices - pc, NIC, Access Point, Ethernet Switch, home router) ----- Access Networks(ISP Edge Router) ----- Network core (ISP Core Routers)
+Network Edges(devices - pc, NIC, Access Point, Ethernet Switch, home router) ----- Access Networks(ISP Edge Router) ----- Network core (ISP Core Routers) ----- Internet(Transit Routers)
 
 Network edges - consists of hosts
 Hosts - devices (client and servers), data centres, mobile phone, pc
@@ -105,10 +105,82 @@ MAC address device physical address hardcoded on Network interface card to ident
 To know MAC address - networksetup -getmacaddress Wi-Fi
 IP address tells the network layer where the destination is.
 MAC address tells the Ethernet/data-link layer which device on the local network should receive the frame. Ethernet needs a MAC address to work.
-
-DNS - Domain Name server - list of ip address and domain name
+_______________________________________________________________________________________________________________
+DNS - Domain Name system - list of ip address and domain name, port 53,  uses both tcp and UDP in transport layer
 eg: https://google.com    172.217.19.164
 
+CURL OUTPUT                                       | WHAT IT DOES
+--------------------------------------------------|------------------------------------------
+$ curl -v https://example.com                     | Makes HTTPS request; -v shows details
+* Host example.com:443 was resolved.              | DNS resolution completed
+* IPv6: (none)                                    | No IPv6 address used
+* IPv4: 172.66.147.243, 104.20.23.154             | DNS returned IPv4 addresses
+* Trying 172.66.147.243:443...                    | Attempts TCP connection to port 443
+* Connected ... port 443                          | TCP connection established
+* ALPN: curl offers h2,http/1.1                   | Client offers HTTP/2 and HTTP/1.1
+* TLS handshake, Client hello (1)                 | Client starts TLS negotiation
+* CAfile: /etc/ssl/cert.pem                       | Trusted CA certificates location
+* TLS handshake, Server hello (2)                 | Server selects TLS parameters
+* TLS handshake, Certificate (11)                 | Server sends its certificate
+* TLS handshake, CERT verify (15)                 | Server proves certificate ownership
+* TLS handshake, Finished (20)                    | Server finishes TLS handshake
+* TLS handshake, Finished (20)                    | Client finishes TLS handshake
+* SSL connection using TLSv1.3 / ...              | Encrypted TLS 1.3 connection established
+* ALPN: server accepted h2                        | Server selected HTTP/2
+* subject: CN=example.com                         | Certificate identifies example.com
+* subjectAltName ... matched ...                  | Hostname matches certificate
+* issuer: ... Cloudflare TLS Issuing ECC CA 3     | Certificate issuer
+* SSL certificate verify ok.                      | Certificate is trusted/valid
+* using HTTP/2                                    | HTTP/2 will be used
+* OPENED stream for https://example.com/          | HTTP/2 stream created
+* [:method: GET]                                  | HTTP method = GET
+* [:scheme: https]                                | Scheme = HTTPS
+* [:authority: example.com]                       | Target host = example.com
+* [:path: /]                                      | Requested path = /
+> GET / HTTP/2                                    | HTTP request sent
+> Host: example.com                               | Target hostname
+> User-Agent: curl/8.7.1                          | Identifies curl
+> Accept: */*                                     | Accepts any content type
+* Request completely sent off                     | Request transmission finished
+< HTTP/2 200                                      | Request succeeded
+< content-type: text/html                         | Response is HTML
+< server: cloudflare                              | Response came through Cloudflare
+< cf-cache-status: HIT                            | Cloudflare served cached content
+< cf-ray: ...-BOM                                 | Cloudflare request/PoP identifier
+<!doctype html>...                                | Actual HTML response body
+* Connection #0 ... left intact                   | Connection remains open for reuse
+
+mail.google.com - mail(sun-domain).google(second-lvl-domain).com(top lvl domain)
+Domains are managed by ICANN
+Root dns server has - different old (.com, .org, .io, etc) - and each old has second lvl domain
+
+Path of the url req:
+Browser
+   ↓
+OS DNS resolver
+   ↓
+DNS cache
+   ↓
+Configured DNS server			//in router
+   ↓
+DNS recursive resolver
+   ↓
+Root DNS server				//can know in root-servers.org
+   ↓
+.com TLD(top level domain) DNS server
+   ↓
+Authoritative DNS server
+   ↓
+IP address
+   ↓
+Browser
+
+$ dig google.com 
+dig is a flexible tool for interrogating DNS name servers. It performs DNS lookups and displays the
+answers that are returned from the name server(s) that were queried. Most DNS administrators use dig
+to troubleshoot DNS problems because of its flexibility, ease of use and clarity of output. Other
+lookup tools tend to have less functionality than dig 
+_______________________________________________________________________________________________________________
 DHCP - internet Service provider providers modem/router which has a global ip address and the devices connected by it is assigned local ip addresses by DHCP (Dynamic host control protocol)
 
 ARP - Address Resolution Protocol, happens between the Network layer and Data Link layer, when a device needs to send an IPv4 packet to another device on the same local network
@@ -116,7 +188,7 @@ ARP - Address Resolution Protocol, happens between the Network layer and Data Li
 Port - address for every applications in the device, 16 bit number so total ports available = 2^16 = 65,536
 Reserved ports - 0 to 1023 - Used by standard services and protocols
 Registered ports - 1024–49151 - Used by applications and services registered with IANA.
-Private ports - 49152–65535 - Usually used temporarily by client applications for outgoing connections.
+Private ports/Ephemeral ports - 49152–65535 - Usually used temporarily by client applications for outgoing connections.
 Eg:
 20/21 - FTP - File Transfer
 22 - SSH - Secure Remote Access
@@ -556,7 +628,7 @@ STRUCTURE OF THE NETWORK: OSI (OPEN SYSTEMS INTERCONNECTION) MODEL
 - Performs segmentation of application data.
 - Uses source and destination port numbers.
 - Provides sequencing and reliable delivery with TCP.
-- Provides flow control and error recovery with TCP.
+- Provides congestion, flow control and error recovery with TCP.
 - Adds a checksum for error detection.
 - TCP and UDP operate at this layer.
 - TCP provides reliable, connection-oriented communication.
@@ -645,9 +717,46 @@ Physical      -> Transmits Bits as Light/Electrical/Radio Signals
 ____________________________________________________________________________________________________________________________________________________________________________________________
 Network protocols:
 
-Application layer - http, https, dns, DHCP, ftp, smtp, pop3/imap, ssh, vnc, telnet, websocket
+Application layer - http, dns, DHCP, ftp, smtp, pop3/imap, ssh, vnc, telnet, websocket
 Transport layer - tcp, udp
 Network layer - ipv4, ipv6, icmp, arp
 	routing protocols - ospf, bgp
 Datalink layer - ethernet, vlan, wifi(wpa2, wpa3)
-	security protocols - tls, ssl, ssh
+	security protocols - tls, ssl, ssh, https
+
+
+HTTP: application layer protocol needs transport protocol, uses TCP 
+	between client and server
+	Stateless protocol - server do not store any data of client, but cookies (unique string) are created and stored in client browser, so browser sends the cookie with the next request header, so we can feel that the server stores the state bit its not.
+	cookies contains session id(which is created when the user logged in) 
+	connection oriented 
+	http methods - to communicate with server, eg: get, post, put, delete,
+	http header - contains all the information about the req and res
+	status codes:
+| Code | Category      | Meaning                                     |
+| ---- | ------------- | ------------------------------------------- |
+| 1xx  | Informational | "I'm still processing / here's information" |
+| 2xx  | Success       | "Your request worked"                       |
+| 3xx  | Redirection   | "Go somewhere else / use cached version"    |
+| 4xx  | Client error  | "Something is wrong with your request"      |
+| 5xx  | Server error  | "The server failed to handle it"            |
+
+
+SMTP: Simple mail transfer protocol uses tcp in transport protocol, port 25
+POP3: Post office protocol for receiving mails, port 110
+IMAP: Internet message access protocol to get mails, can access mail from many devices as the server keeps the mails forever unless deleted by user, port 993
+
+
+TCP: Transmission Control Protocol
+	multiplexing allows the tcp to send requests from different ports to many destination applications and demultiplexing does the opposite 
+	Browser ──┐
+	SSH ──────┤
+	Game ─────┼──► TCP ──► IP ──► NIC
+	Email ────┘
+	MUX: many applications → one network path.
+	DEMUX: incoming network data → correct application.
+
+	provides congestion control on network to match its bandwidth
+	TCP make sure that the data sent is not altered and not lost:
+	checksum - a number calculated with a algo and sent with data, receiver calculates the same and verify it
+	timer - 
