@@ -1,0 +1,585 @@
+CISCO IOS — CLI NOTES
+
+1. WHAT IS CISCO IOS
+
+Cisco IOS (Internetwork Operating System) is the operating system used by many Cisco routers and switches.
+
+It provides:
+- Interface configuration
+- IP addressing
+- Routing
+- VLANs
+- ACLs
+- NAT
+- DHCP
+- SSH
+- Routing protocols such as OSPF and BGP
+- Troubleshooting and monitoring
+
+
+2. HOW YOU CONNECT TO A CISCO DEVICE
+
+Physical/virtual setup:
+
+PC/Laptop
+    |
+    | Console cable / USB / SSH
+    |
+Cisco Router/Switch
+    |
+    +-- Network interfaces --> Other devices
+
+CLI access methods:
+
+Console:
+PC Terminal → Console cable → Cisco device → IOS CLI
+
+SSH:
+PC Terminal → Network → TCP port 22 → Cisco device → IOS CLI
+
+Telnet:
+PC Terminal → Network → TCP port 23 → Cisco device → IOS CLI
+(Not secure; use SSH instead)
+
+For a network lab:
+
+PC ── Switch ── Router ── Switch ── PC
+
+
+3. IOS CLI MODES
+
+User EXEC mode:
+Router>
+
+Privileged EXEC mode:
+Router#
+
+Global configuration mode:
+Router(config)#
+
+Interface configuration mode:
+Router(config-if)#
+
+Line configuration mode:
+Router(config-line)#
+
+Move between modes:
+
+Router> enable
+Router# configure terminal
+Router(config)# interface gigabitEthernet 0/0
+Router(config-if)# exit
+Router(config)# exit
+Router#
+Router# disable
+Router>
+
+
+4. BASIC COMMANDS
+
+enable
+    Enter privileged EXEC mode.
+
+disable
+    Return to user EXEC mode.
+
+configure terminal
+    Enter global configuration mode.
+
+exit
+    Move back one configuration level.
+
+end
+    Immediately return to privileged EXEC mode.
+
+?
+    Show available commands.
+
+show ?
+    Show available show commands.
+
+show running-config
+    Display current configuration in RAM.
+
+show startup-config
+    Display saved configuration in NVRAM.
+
+show version
+    Show IOS version, hardware and device information.
+
+hostname R1
+    Change device hostname.
+
+
+5. CONFIGURE A ROUTER INTERFACE
+
+Router> enable
+Router# configure terminal
+Router(config)# hostname R1
+
+R1(config)# interface gigabitEthernet 0/0
+R1(config-if)# ip address 192.168.1.1 255.255.255.0
+R1(config-if)# no shutdown
+R1(config-if)# exit
+
+R1(config)# end
+
+Check:
+
+R1# show ip interface brief
+
+Example:
+
+Interface              IP-Address      Status      Protocol
+GigabitEthernet0/0     192.168.1.1     up          up
+
+no shutdown
+    Enables an administratively disabled interface.
+
+shutdown
+    Disables the interface.
+
+
+6. CONNECTING A PC TO THE ROUTER
+
+Router:
+
+Interface:
+G0/0
+IP: 192.168.1.1
+Mask: 255.255.255.0
+
+PC:
+
+IP: 192.168.1.10
+Mask: 255.255.255.0
+Default gateway: 192.168.1.1
+
+Test:
+
+PC> ping 192.168.1.1
+
+If successful:
+
+PC → Switch/Link → Router
+
+
+7. UNDERSTANDING THE ROUTER
+
+Router receives:
+
+Ethernet frame
+    ↓
+NIC/interface
+    ↓
+Remove Layer-2 header
+    ↓
+Examine destination IP
+    ↓
+Routing table lookup
+    ↓
+Choose outgoing interface
+    ↓
+Create new Layer-2 frame
+    ↓
+NIC/interface
+    ↓
+Physical signal
+
+
+8. ROUTING TABLE
+
+Show routing table:
+
+R1# show ip route
+
+Important route types:
+
+C = Connected
+L = Local
+S = Static
+O = OSPF
+D = EIGRP
+B = BGP
+
+Example:
+
+C 192.168.1.0/24 is directly connected, GigabitEthernet0/0
+
+The router uses this table to decide where packets go.
+
+
+9. CONFIGURE TWO NETWORKS
+
+Topology:
+
+PC1 ── Switch ── R1 ── Switch ── PC2
+
+Network 1:
+192.168.1.0/24
+
+R1 G0/0:
+192.168.1.1/24
+
+Network 2:
+192.168.2.0/24
+
+R1 G0/1:
+192.168.2.1/24
+
+Configuration:
+
+R1# configure terminal
+
+R1(config)# interface gigabitEthernet 0/0
+R1(config-if)# ip address 192.168.1.1 255.255.255.0
+R1(config-if)# no shutdown
+R1(config-if)# exit
+
+R1(config)# interface gigabitEthernet 0/1
+R1(config-if)# ip address 192.168.2.1 255.255.255.0
+R1(config-if)# no shutdown
+R1(config-if)# exit
+
+R1(config)# end
+
+R1# show ip interface brief
+R1# show ip route
+
+The router now knows both networks because they are directly connected.
+
+
+10. STATIC ROUTING
+
+Topology:
+
+Network A ── R1 ── R2 ── Network B
+
+On R1:
+
+R1(config)# ip route 192.168.2.0 255.255.255.0 <R2-next-hop-IP>
+
+Example:
+
+R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2
+
+On R2:
+
+R2(config)# ip route 192.168.1.0 255.255.255.0 10.0.0.1
+
+Check:
+
+R1# show ip route
+R2# show ip route
+
+
+11. DEFAULT ROUTE
+
+A default route is used when no more specific route exists.
+
+R1(config)# ip route 0.0.0.0 0.0.0.0 <next-hop-IP>
+
+Example:
+
+R1(config)# ip route 0.0.0.0 0.0.0.0 10.0.0.2
+
+Check:
+
+R1# show ip route
+
+S* 0.0.0.0/0
+
+
+12. PING AND TRACEROUTE
+
+R1# ping 192.168.2.10
+
+Tests IP connectivity.
+
+R1# traceroute 192.168.2.10
+
+Shows the Layer-3 path/hops toward the destination.
+
+
+13. ARP
+
+Show ARP table:
+
+R1# show arp
+
+ARP maps:
+
+IP address → MAC address
+
+Example:
+
+192.168.1.10 → AAAA.BBBB.CCCC
+
+Clear ARP cache:
+
+R1# clear arp
+
+
+14. SWITCH CLI
+
+Basic switch commands:
+
+Switch> enable
+Switch# show mac address-table
+
+The switch learns:
+
+MAC address → Port
+
+Example:
+
+MAC Address       Port
+AAAA.BBBB.CCCC    Fa0/1
+DDDD.EEEE.FFFF    Fa0/2
+
+
+15. CONFIGURE SWITCH PORT
+
+Switch# configure terminal
+
+Switch(config)# interface fastEthernet 0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# exit
+
+Assign VLAN:
+
+Switch(config)# interface fastEthernet 0/1
+Switch(config-if)# switchport access vlan 10
+
+
+16. VLAN
+
+Create VLAN:
+
+Switch# configure terminal
+Switch(config)# vlan 10
+Switch(config-vlan)# name SALES
+Switch(config-vlan)# exit
+
+Create another:
+
+Switch(config)# vlan 20
+Switch(config-vlan)# name IT
+Switch(config-vlan)# exit
+
+Check:
+
+Switch# show vlan brief
+
+One VLAN = one Layer-2 broadcast domain.
+
+
+17. TRUNK
+
+A trunk carries multiple VLANs between network devices.
+
+Switch(config)# interface gigabitEthernet 0/1
+Switch(config-if)# switchport mode trunk
+
+Check:
+
+Switch# show interfaces trunk
+
+
+18. INTER-VLAN ROUTING
+
+VLAN 10 and VLAN 20 cannot communicate through a normal Layer-2 switch alone.
+
+Router/L3 switch performs Layer-3 routing.
+
+Router-on-a-stick example:
+
+R1(config)# interface g0/0
+R1(config-if)# no shutdown
+
+R1(config)# interface g0/0.10
+R1(config-subif)# encapsulation dot1Q 10
+R1(config-subif)# ip address 192.168.10.1 255.255.255.0
+
+R1(config)# interface g0/0.20
+R1(config-subif)# encapsulation dot1Q 20
+R1(config-subif)# ip address 192.168.20.1 255.255.255.0
+
+
+19. SAVE CONFIGURATION
+
+Running configuration exists in RAM.
+
+Save it:
+
+R1# copy running-config startup-config
+
+or:
+
+R1# write memory
+
+Running-config:
+    Current active configuration.
+
+Startup-config:
+    Configuration loaded after reboot.
+
+
+20. SSH CONFIGURATION
+
+Set hostname:
+
+R1(config)# hostname R1
+
+Set domain:
+
+R1(config)# ip domain-name lab.local
+
+Create user:
+
+R1(config)# username admin privilege 15 secret <password>
+
+Generate RSA keys:
+
+R1(config)# crypto key generate rsa
+
+Configure SSH:
+
+R1(config)# line vty 0 4
+R1(config-line)# login local
+R1(config-line)# transport input ssh
+R1(config-line)# exit
+
+Then connect from another machine:
+
+ssh admin@192.168.1.1
+
+
+21. IMPORTANT SHOW COMMANDS
+
+show running-config
+    Current configuration.
+
+show startup-config
+    Saved configuration.
+
+show ip interface brief
+    Quick interface/IP/status view.
+
+show interfaces
+    Detailed interface information.
+
+show ip route
+    Routing table.
+
+show arp
+    ARP table.
+
+show mac address-table
+    Switch MAC table.
+
+show vlan brief
+    VLAN information.
+
+show interfaces trunk
+    Trunk information.
+
+show version
+    IOS/hardware information.
+
+show cdp neighbors
+    Directly connected Cisco neighbors.
+
+show ip protocols
+    Routing protocol information.
+
+
+22. BASIC TROUBLESHOOTING ORDER
+
+When connectivity fails:
+
+1. Check physical/interface status:
+   show ip interface brief
+
+2. Check IP configuration:
+   show running-config
+
+3. Check ARP:
+   show arp
+
+4. Check routing:
+   show ip route
+
+5. Test local gateway:
+   ping <gateway>
+
+6. Test remote destination:
+   ping <destination>
+
+7. Find path:
+   traceroute <destination>
+
+8. Check switch MAC table:
+   show mac address-table
+
+9. Check VLAN:
+   show vlan brief
+
+10. Check trunk:
+    show interfaces trunk
+
+
+23. CORE CONCEPT TO REMEMBER
+
+PC:
+Application
+    ↓
+TCP/UDP
+    ↓
+IP
+    ↓
+Ethernet/Wi-Fi
+    ↓
+NIC
+    ↓
+Physical signal
+
+Router:
+Incoming signal
+    ↓
+NIC
+    ↓
+Ethernet frame
+    ↓
+IP packet
+    ↓
+Routing table
+    ↓
+Choose outgoing interface
+    ↓
+New Layer-2 frame
+    ↓
+NIC
+    ↓
+New physical signal
+
+Cisco IOS is the software/CLI through which you configure and control these networking functions.
+
+LEARN IN THIS ORDER:
+
+IOS CLI basics
+→ Interfaces
+→ IPv4 addressing
+→ ARP
+→ Switching/MAC table
+→ VLANs
+→ Static routing
+→ Default routes
+→ DHCP
+→ NAT
+→ ACLs
+→ SSH
+→ STP
+→ OSPF
+→ BGP
+→ IPv6

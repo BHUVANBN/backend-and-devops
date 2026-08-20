@@ -222,7 +222,12 @@ Eg:
 When the req is sent to internet by a Device via Modem and ISP, the response comes to Modem, which uses NAT(Network access translator) to findout which device made request 
 ____________________________________________________________________________________________________________________________________________________________________________________________
 Types of Networks: LAN(ethernets, wifi), MAN, WAN(Optical fibre cables, SONET, Frame replay), Internet 
+
 Topologies - Bus, Ring, Star(used in organizations), Mesh, Hybrid 
+
+3 tier topology - access layer(access point and wired switches), distribution/aggregation layers(router, firewall, ips), core layer(High-Speed Backbone Switches, core routers and high speed network)
+
+2 tier topology - access and core layer(with Dist layer) 
 ____________________________________________________________________________________________________________________________________________________________________________________________
 NETWORK DEVICES AND THEIR OSI LAYERS
 ====================================
@@ -551,6 +556,11 @@ ACCESS POINT
 - Bridges wireless devices to a wired LAN
 - Mainly Layer 2
 
+Controllers - used to light weight control access points
+Types - wireless LAN controllers, SDN(software defined network)controllers - eg: DNA(digital network architecture) Center (renamed to catalyst centre)
+
+PoE(power over ethernet) : 802.ef, 802.at ethernets delivers data and supply power 
+
 SIMPLE NETWORK
 ==============
 
@@ -647,7 +657,13 @@ STRUCTURE OF THE NETWORK: OSI (OPEN SYSTEMS INTERCONNECTION) MODEL
 - Routers primarily operate at this layer.
 - IPv4 and IPv6 operate at this layer.
 - PDU = Packet
+- A router routes packets between different IP networks. Each router interface separates broadcast domains and also separates Layer-2 collision domains
+- layer 3 switch = layer 2 switch + route processor
 
+Firewall: next-generation, stateful (allows the data only if asked, and only from allowed websites)
+Deep packet inspection, application awareness and control
+
+IPS(Intrusion prevention system): Real-time monitoring, anomaly detection
 
 2. DATA LINK LAYER
 ------------------
@@ -659,7 +675,7 @@ STRUCTURE OF THE NETWORK: OSI (OPEN SYSTEMS INTERCONNECTION) MODEL
 - Handles access to the physical transmission medium.
 - Ethernet and Wi-Fi have Data Link-layer functions.
 - PDU = Frame
-
+- layer 2 switch contains ports with the connected device MAC addresses, switches has collision domains (so each devices data is not collided) and 1 broadcast domain(sends data to all connected device)
 
 1. PHYSICAL LAYER
 -----------------
@@ -717,14 +733,14 @@ Physical      -> Transmits Bits as Light/Electrical/Radio Signals
 ____________________________________________________________________________________________________________________________________________________________________________________________
 Network protocols:
 
-Application layer - http, dns, DHCP, ftp, smtp, pop3/imap, ssh, vnc, telnet, websocket
+Application layer - http, dns, DHCP, ftp, sftp, smtp, pop3/imap, ssh, vnc, telnet, websocket
 Transport layer - tcp, udp
 Network layer - ipv4, ipv6, icmp, arp
 	routing protocols - ospf, bgp
 Datalink layer - ethernet, vlan, wifi(wpa2, wpa3)
 	security protocols - tls, ssl, ssh, https
-
-
+____________________________________________________________________________________________________________________________________________________________________________________________
+Application layer protocol:
 HTTP: application layer protocol needs transport protocol, uses TCP 
 	between client and server
 	Stateless protocol - server do not store any data of client, but cookies (unique string) are created and stored in client browser, so browser sends the cookie with the next request header, so we can feel that the server stores the state bit its not.
@@ -741,13 +757,59 @@ HTTP: application layer protocol needs transport protocol, uses TCP
 | 4xx  | Client error  | "Something is wrong with your request"      |
 | 5xx  | Server error  | "The server failed to handle it"            |
 
-
+FTP: File transfer protocol, connection oriented, port 21,20
+	ftp has 2 channels for connection - control (to use commans) and data (for sending data)
+	active mode - 2 way communication between client and server
+		      the server initiates the data connection back to the client
+			client control connection via port 21 and server creates data connection via port 20
+        Passive mode - client initiates both connection after receiving the port(any port by server) detail from server for data connection
+SFTP: Secure File transfer protocol, uses SSH for secure ftp, port 22
+SSH: secure shell, connecting accèss to server, port 22 
 SMTP: Simple mail transfer protocol uses tcp in transport protocol, port 25
 POP3: Post office protocol for receiving mails, port 110
 IMAP: Internet message access protocol to get mails, can access mail from many devices as the server keeps the mails forever unless deleted by user, port 993
 
-
+____________________________________________________________________________________________________________________________________________________________________________________________
+Transport Layer protocols:
 TCP: Transmission Control Protocol
+	divides the data into chunks and adds tcp header
+TCP HEADER
+
+  0                   15 16                  31
+  +---------------------+---------------------+
+  |     Source Port     |   Destination Port  |
+  +---------------------+---------------------+
+  |              Sequence Number              |
+  +-------------------------------------------+
+  |           Acknowledgment Number           |
+  +----+------+---------+---------------------+
+  |HLEN| Res. |  Flags  |     Window Size     |
+  +----+------+---------+---------------------+
+  |       Checksum      |   Urgent Pointer    |
+  +---------------------+---------------------+
+  |          Options (if present)             |
+  +-------------------------------------------+
+  |                  Data                     |
+  +-------------------------------------------+
+
+Source Port       → Sending application's port
+Destination Port  → Receiving application's port
+Sequence Number   → Position of data in the TCP byte stream
+ACK Number        → Next byte expected from the other side
+HLEN/Data Offset   → Size of TCP header
+Flags             → SYN, ACK, FIN, RST, PSH, URG, etc.
+Window Size       → Receiver's available buffer / flow control
+Checksum          → Detects errors
+Urgent Pointer    → Points to urgent data when URG is set
+Options           → MSS, Window Scale, SACK, Timestamps, etc.
+Data              → Application data
+
+	connection oriented - 3 way handshake
+
+
+
+
+	full duplex - can transact at same time also
 	multiplexing allows the tcp to send requests from different ports to many destination applications and demultiplexing does the opposite 
 	Browser ──┐
 	SSH ──────┤
@@ -759,4 +821,129 @@ TCP: Transmission Control Protocol
 	provides congestion control on network to match its bandwidth
 	TCP make sure that the data sent is not altered and not lost:
 	checksum - a number calculated with a algo and sent with data, receiver calculates the same and verify it
-	timer - 
+	timers - when a packet is sent the timer is turned on in sender side if the ack not received from receiver the timer expires and sender resends that particular packet.
+	a sequence number is maintained, and each packets has sequence number if the 2nd packet is not received it sends the same packet with same sequence number, if the ack is not sent even after receiving the packet the same packet is sent again with same sequence number and if duplicate sequence packets exists in receiver side it is discarded
+
+
+UDP: User datagram protocol 
+	udp packet(datagram) contains src port(2 bytes), dest port(2 bytes), checksum(2 bytes), length of datagram(2 bytes), and the data(payload)(0 - 65,507 bytes) total = 2^16 bytes
+UDP HEADER
+
+  0                   15 16                  31
+  +---------------------+---------------------+
+  |     Source Port     |   Destination Port  |
+  +---------------------+---------------------+
+  |       Length        |       Checksum      |
+  +---------------------+---------------------+
+  |                  Data                     |
+  +-------------------------------------------+
+
+Source Port       → Sending application's port
+Destination Port  → Receiving application's port
+Length             → UDP header + data size
+Checksum           → Detects errors
+Data               → Application data
+	
+	udp is fast
+	udp is not reliable(but there are other protocols that makes it somewhat reliable), here data may or may not be delivered, used in video streaming, gaming, dns, faster delivery
+	connectionless protocol
+	it also uses checksum but does not do anything if the data is corrupted	
+	$ tcpdump -c 5  -> gives the information about packets captured
+
+____________________________________________________________________________________________________________________________________________________________________________________________
+Network Layer protocols:
+IPv4: IP version 4 represents the address of a device on network with dotted decimal notation(192.168.1.10) or binary notation (11000000.10101000.00000001.00001010)
+
+Subnet mask: to identify the network the host is on
+	ip address also comes with subnet mask(255.255.255.0 or 11111111.11111111.11111111.00000000)to identify the network the device is in, 1 stands for network bits, so all the bits in ip address which has 1 are considered as network address(i.e 192.168.1) and remaining is host address(i.e 10)
+192 . 168 . 1 . 10
+└─────────────┘└──┘
+    network    host
+CIDR(Classless Inter domain routing)/prefix notation: 192.168.1.10/24 (it represents 24 as bits for network) 
+/8   = 255.0.0.0
+/16  = 255.255.0.0
+/24  = 255.255.255.0
+/25  = 255.255.255.128
+/26  = 255.255.255.192
+/27  = 255.255.255.224
+/28  = 255.255.255.240
+/29  = 255.255.255.248
+/30  = 255.255.255.252
+
+it is used to create new sub networks by giving bits for the network part
+Eg: Lets say the ipv4 = 192.168.1.10/16 (11111111.11111111.00000000.00000000) hosts = 2^16 - 2 = 65,534
+--> 
+11111111.11111111.11110000.00000000 (192.168.1.10/20 or 255.255.240.0) this creates 2^n (where n = number of bits borrowed from the original host portion) i.e 2^4 = 16 subnetworks and 2^h - 2 (where h = number of 0's in subnet mask) i.e 2^12 - 2 = 4094 per subnet - around 65504 hosts 
+The small difference(65534 - 65504 = 30) comes from each subnet needing its own network and broadcast address
+SUBNET             HOST RANGE                         BROADCAST
+----------------  --------------------------------- -----------------
+192.168.0.0/20     192.168.0.1   - 192.168.15.254   192.168.15.255
+192.168.16.0/20    192.168.16.1  - 192.168.31.254   192.168.31.255
+192.168.32.0/20    192.168.32.1  - 192.168.47.254   192.168.47.255
+192.168.48.0/20    192.168.48.1  - 192.168.63.254   192.168.63.255
+192.168.64.0/20    192.168.64.1  - 192.168.79.254   192.168.79.255
+192.168.80.0/20    192.168.80.1  - 192.168.95.254   192.168.95.255
+192.168.96.0/20    192.168.96.1  - 192.168.111.254  192.168.111.255
+192.168.112.0/20   192.168.112.1 - 192.168.127.254  192.168.127.255
+192.168.128.0/20   192.168.128.1 - 192.168.143.254  192.168.143.255
+192.168.144.0/20   192.168.144.1 - 192.168.159.254  192.168.159.255
+192.168.160.0/20   192.168.160.1 - 192.168.175.254  192.168.175.255
+192.168.176.0/20   192.168.176.1 - 192.168.191.254  192.168.191.255
+192.168.192.0/20   192.168.192.1 - 192.168.207.254  192.168.207.255
+192.168.208.0/20   192.168.208.1 - 192.168.223.254  192.168.223.255
+192.168.224.0/20   192.168.224.1 - 192.168.239.254  192.168.239.255
+192.168.240.0/20   192.168.240.1 - 192.168.255.254  192.168.255.255
+
+IPv4 CLASSFUL ADDRESSING: designed for many sub networks, eg:class A has 126 networks with each having 16,777,214 hosts(devices)
+Class | 1st Octet     | Default Mask      | Net/Host | Number of Networks | Hosts per Network
+------+---------------+-------------------+----------+--------------------+------------------
+A     | 1–126         | 255.0.0.0 (/8)    | N.H.H.H  | 126                | 16,777,214
+B     | 128–191       | 255.255.0.0 (/16) | N.N.H.H  | 16,384             | 65,534
+C     | 192–223       | 255.255.255.0(/24)| N.N.N.H  | 2,097,152          | 254
+D     | 224–239       | N/A               | Multicast| N/A                | N/A
+E     | 240–255       | N/A               | Reserved | N/A                | N/A
+
+CALCULATIONS
+Class A:
+Network bits = 8
+Usable network IDs = 2^7 - 2 = 126
+Host bits = 24
+Usable hosts = 2^24 - 2 = 16,777,214
+
+Class B:
+Network bits = 16
+Network IDs = 2^14 = 16,384
+Host bits = 16
+Usable hosts = 2^16 - 2 = 65,534
+
+Class C:
+Network bits = 24
+Network IDs = 2^21 = 2,097,152
+Host bits = 8
+Usable hosts = 2^8 - 2 = 254
+
+Class A:
+0.x.x.x       → Reserved
+127.x.x.x     → Loopback
+1–126         → Class A
+
+Class B:
+128–191       → Class B
+
+Class C:
+192–223       → Class C
+
+Class D:
+224–239       → Multicast
+
+Class E:
+240–255       → Experimental/Reserved
+
+N = Network octet
+H = Host octet
+
+IMPORTANT:
+Classful addressing is largely obsolete.
+Modern IPv4 networks use CIDR/subnetting, e.g. /20, /24, /27, etc.
+
+VLSM (Variable length subnet masking)
