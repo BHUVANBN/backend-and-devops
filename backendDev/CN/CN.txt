@@ -853,6 +853,43 @@ Data               → Application data
 ____________________________________________________________________________________________________________________________________________________________________________________________
 Network Layer protocols:
 IPv4: IP version 4 represents the address of a device on network with dotted decimal notation(192.168.1.10) or binary notation (11000000.10101000.00000001.00001010)
+IPv4 PACKET
+
+  0                   15 16                  31
+  +----+----+----------+---------------------+
+  |Ver | IHL|DSCP/ECN  |    Total Length     |
+  +--------------------+---------------------+
+  |       Identification       | F |Frag Off.|
+  +----------------------------+-------------+
+  | TTL | Protocol |        Checksum         |
+  +-----+----------+-------------------------+
+  |           Source IPv4 Address            |
+  +------------------------------------------+
+  |         Destination IPv4 Address         |
+  +------------------------------------------+
+  |              Options (optional)          |
+  +------------------------------------------+
+  |                  Data                    |
+  +------------------------------------------+
+
+Version              → IPv4 = 4
+IHL                  → IPv4 header length
+DSCP/ECN             → QoS and congestion notification
+Total Length         → Entire packet size
+Identification       → Used for fragmentation/reassembly
+Flags                → Controls fragmentation
+Fragment Offset      → Position of a fragment
+TTL                  → Limits packet lifetime/hops
+Protocol             → Identifies next protocol (TCP=6, UDP=17)
+Header Checksum      → Detects IPv4 header errors
+Source Address       → Sender's IPv4 address
+Destination Address  → Receiver's IPv4 address
+Options              → Optional IPv4 features
+Data                 → TCP/UDP segment or other payload
+
+IPv4 header:
+Minimum = 20 bytes
+Maximum = 60 bytes
 
 Subnet mask: to identify the network the host is on
 	ip address also comes with subnet mask(255.255.255.0 or 11111111.11111111.11111111.00000000)to identify the network the device is in, 1 stands for network bits, so all the bits in ip address which has 1 are considered as network address(i.e 192.168.1) and remaining is host address(i.e 10)
@@ -946,4 +983,84 @@ IMPORTANT:
 Classful addressing is largely obsolete.
 Modern IPv4 networks use CIDR/subnetting, e.g. /20, /24, /27, etc.
 
-VLSM (Variable length subnet masking)
+VLSM (Variable length subnet masking): unused subnets are subnetted further
+
+IP TRAFFIC TYPES
+1. UNICAST: One sender → One specific receiver
+Example: 192.168.1.10 → 192.168.1.20
+Used when data is intended for one specific device.
+
+2. BROADCAST: One sender → All hosts in the local broadcast domain
+Example: 192.168.1.10 → 192.168.1.255
+Limited Broadcast: 255.255.255.255
+255.255.255.255 means: Send to all hosts on the local network.
+Routers normally do not forward IPv4 broadcasts.
+
+3. MULTICAST: One sender → Specific group of receivers
+IPv4 multicast range: 224.0.0.0 – 239.255.255.255
+Example: 192.168.1.10 → 224.0.0.1
+Only devices that have joined the multicast group receive the traffic.
+Historically called Class D.
+
+4. ANYCAST: One sender → One destination selected from multiple devices
+Usually the nearest/best destination according to routing.
+Example:
+             ┌── Server A
+             │
+Client ──────┼── Server B
+             │
+             └── Server C
+
+All servers advertise the same IP.
+The network routing system selects the best/nearest server.
+Commonly used by:
+- DNS services
+- CDNs
+- Distributed services
+
+SUMMARY
+UNICAST: One → One
+BROADCAST: One → All hosts in local broadcast domain
+MULTICAST: One → Specific group
+ANYCAST: One → One of many equivalent destinations
+__________________________________________________________________________________________________________________________
+
+IPv6: addressed shortage of the network addresses by using 128-bit hexadecimal value 
+8 fields with colon separated 4 alpha numeric characters
+Eg: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+Has fixed size header
+IPv6 PACKET
+
+  0                   15 16                  31
+  +----+--------------+----------------------+
+  |Ver | Traffic Class|    Flow Label        |
+  +----+--------------+----------------------+
+  |        Payload Length       |Nxt |  Hop  |
+  +-----------------------------+----+-------+
+  |                                          |
+  |            Source IPv6 Address           |
+  |                                          |
+  +------------------------------------------+
+  |                                          |
+  |         Destination IPv6 Address         |
+  |                                          |
+  +------------------------------------------+
+  |            Extension Headers             |
+  +------------------------------------------+
+  |                  Data                    |
+  +------------------------------------------+
+
+Version              → IPv6 = 6
+Traffic Class        → QoS and congestion handling
+Flow Label           → Identifies packets belonging to the same flow
+Payload Length       → Size of payload after IPv6 header
+Next Header          → Identifies next header/protocol
+                       TCP=6, UDP=17, ICMPv6=58
+Hop Limit            → Limits packet lifetime/hops
+Source Address       → Sender's 128-bit IPv6 address
+Destination Address  → Receiver's 128-bit IPv6 address
+Extension Headers    → Optional features such as routing/security
+Data                 → TCP/UDP segment or other payload
+
+IPv6 base header:
+Fixed = 40 bytes
