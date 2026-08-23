@@ -796,7 +796,7 @@ Source Port       → Sending application's port
 Destination Port  → Receiving application's port
 Sequence Number   → Position of data in the TCP byte stream
 ACK Number        → Next byte expected from the other side
-HLEN/Data Offset   → Size of TCP header
+HLEN/Data Offset  → Size of TCP header
 Flags             → SYN, ACK, FIN, RST, PSH, URG, etc.
 Window Size       → Receiver's available buffer / flow control
 Checksum          → Detects errors
@@ -1064,3 +1064,15 @@ Data                 → TCP/UDP segment or other payload
 
 IPv6 base header:
 Fixed = 40 bytes
+
+To shorten the IPv6 addresses there is 2 rules
+2001:0db8:85a3:0000:0000:8a2e:0370:7334
+IPv6 TRIMMING RULES
+1. Remove leading zeros from each block: 2001:0db8:85a3:0000:0000:8a2e:0370:7334 → 2001:db8:85a3:0:0:8a2e:370:7334
+2. Replace consecutive zero blocks with :: 2001:db8:85a3:0:0:8a2e:370:7334 → 2001:db8:85a3::8a2e:370:7334
+3. Use :: only once: 2001:db8:85a3::8a2e:370:7334 → Valid; 2001::db8::8a2e → Invalid
+4. :: represents one or more complete 16-bit zero blocks: 2001:db8:85a3::8a2e:370:7334 → 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+5. Do not remove zeros from the middle of a block: 2001:0db8:85a3:0000:0000:8a2e:0370:7334 → 2001:db8:85a3:0:0:8a2e:370:7334
+6. Compress the longest consecutive zero sequence: 2001:0db8:85a3:0000:0000:8a2e:0370:7334 → 2001:db8:85a3::8a2e:370:7334
+
+Same subnet mask will apply in ipv6 2001:db8:85a3::1/64
