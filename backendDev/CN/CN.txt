@@ -1035,8 +1035,8 @@ IPv6 PACKET
   +----+--------------+----------------------+
   |Ver | Traffic Class|    Flow Label        |
   +----+--------------+----------------------+
-  |        Payload Length       |Nxt |  Hop  |
-  +-----------------------------+----+-------+
+  |        Payload Length      | Nxt |  Hop  |
+  +----------------------------+-----+-------+
   |                                          |
   |            Source IPv6 Address           |
   |                                          |
@@ -1059,7 +1059,7 @@ Next Header          → Identifies next header/protocol
 Hop Limit            → Limits packet lifetime/hops
 Source Address       → Sender's 128-bit IPv6 address
 Destination Address  → Receiver's 128-bit IPv6 address
-Extension Headers    → Optional features such as routing/security
+Extension Headers    → Optional features such as routing/security\
 Data                 → TCP/UDP segment or other payload
 
 IPv6 base header:
