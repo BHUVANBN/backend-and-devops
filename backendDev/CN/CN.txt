@@ -40,11 +40,11 @@ ________________________________________________________________________________
 │       ↓                             │
 │ TCP / UDP / QUIC                    │
 │       ↓                             │
-│ IP                                  │
+│       IP                            │
 │       ↓                             │
 │ Ethernet / Wi-Fi                    │
 │       ↓                             │
-│ NIC                                 │
+│      NIC                            │
 └──────────────┬──────────────────────┘
                │
                ▼
@@ -103,12 +103,560 @@ IP Address is a address of a device on network layer
 
 MAC address device physical address hardcoded on Network interface card to identify device
 To know MAC address - networksetup -getmacaddress Wi-Fi
+
 IP address tells the network layer where the destination is.
 MAC address tells the Ethernet/data-link layer which device on the local network should receive the frame. Ethernet needs a MAC address to work.
-_______________________________________________________________________________________________________________
+
+Port - address for every applications in the device, 16 bit number so total ports available = 2^16 = 65,536
+Reserved ports - 0 to 1023 - Used by standard services and protocols
+Registered ports - 1024–49151 - Used by applications and services registered with IANA.
+Private ports/Ephemeral ports - 49152–65535 - Usually used temporarily by client applications for outgoing connections.
+Eg:
+20/21 - FTP - File Transfer
+22 - SSH - Secure Remote Access
+23 - Telnet - Remote Access
+25 - SMTP - Sending Email
+53 - DNS - Domain Name Resolution
+67/68 - DHCP - Automatic IP Configuration
+80 - HTTP - Web Traffic
+110 - POP3 - Receiving Email
+123 - NTP - Time Synchronization
+143 - IMAP - Receiving/Managing Email
+161/162 - SNMP - Network Monitoring
+389 - LDAP - Directory Services
+443 - HTTPS - Secure Web Traffic
+445 - SMB - Windows File/Printer Sharing
+465 - SMTPS - Secure Email
+587 - SMTP - Email Submission
+636 - LDAPS - Secure LDAP
+993 - IMAPS - Secure IMAP
+995 - POP3S - Secure POP3
+3306 - MySQL - Database
+3389 - RDP - Windows Remote Desktop
+5432 - PostgreSQL - Database
+6379 - Redis - In-Memory Database
+
+ Device1
+ Device2, ------> Modem/Router ---> ISP ---> Internet
+ Device3.. 
+(Private ips)     (1 public ip)
+ 
+When the request is sent to internet by a Device via Modem and ISP, the response comes to Modem, which uses NAT(Network access translator) to findout which device made request 
+____________________________________________________________________________________________________________________________________________________________________________________________
+Types of Networks: LAN(ethernets, wifi), MAN, WAN(Optical fibre cables, SONET, Frame replay), Internet 
+
+Network Topologies - Bus, Ring, Star(used in organizations), Mesh, Hybrid 
+
+3 tier topology - access layer(access point and wired switches), distribution/aggregation layers(router, firewall, ips), core layer(High-Speed Backbone Switches, core routers and high speed network)
+
+2 tier topology - access and core layer(with Distribution layer)
+
+Spine leaf topology - Every leaf switch connects to every spine switch in a full-mesh pattern, but leaf switches do not connect to each other, and spine switches do not connect to each other
+
+Network Media: 
+copper cables - UTP(unshielded twisted pair)(wire) - from cat 1(legacy telephone) to cat 7(10G ethernet - 10Gbps)
+RJ45 connector(registered jack 45) used in ethernet connection - types: straight through(connecting unlike devices, eg: router-switch, switch-device), cross over(connecting like devices, eg: router-router, switch-switch)
+But Modern devices comes with Auto-MDIX technology which do not care how it is connected, the devices will adapt accordingly.
+
+Optical fibres - glass wire with cladding
+Types: 
+Single mode fibre - allows single light source to carry data
+Multi mode fibre - allows multiple light source to carry data without collision
+Connectors: many connectors in fibres, eg: LC (Lucent Connector), SC (Subscriber Connector), ST (Straight Tip), FC (Ferrule Connector), MPO/MTP (Multi-Fiber Push-On)
+
+CSMA/CD(carrier sense multiple access collision detection): rule used in wired ethernet, first sense weather if the ethernet is free or not and then send the data, if collision occurs it waits for some time to be free
+CSMA/CA(carrier sense multiple access collision avoidance): avoid collision by assigns time slots or token to device to communicate 
+_________________________________________________________________________________________________________________________________________________
+IOS - Internetwork operating system of the CISCO networking devices
+Console cable is used to connect to the device and configure it with initial configuration 
+And then use telnet/ssh to access it further 
+
+_________________________________________________________________________________________________________________________________________________
+NETWORK DEVICES AND THEIR OSI LAYERS
+====================================
+
+1. NIC (NETWORK INTERFACE CARD)
+--------------------------------
+- Connects a computer/device to a network.
+- Can provide Ethernet or Wi-Fi connectivity.
+- Operates mainly at the Physical Layer and Data Link Layer.
+- Has a MAC address.
+- Examples:
+  - Ethernet network card
+  - Wi-Fi adapter
+- Receives bits and formatted into a frame 
+[dest Mac | src Mac | dest IP | src IP | data | Frame Check Seq ]
+CRC is calculated and if it is matched with CRC in the FCS in frame it checks the dest Mac with the NIC Mac and processes the data by creating packet with 
+ | dest IP | src IP | data |
+If CRC does not match it discards the frame
+- does the reverse process when sending packets
+OSI Layer: Layer 1 + Layer 2
+
+2. MODEM
+--------
+- Modem = MOdulator + DEModulator.
+- Converts digital data to signals suitable for transmission over
+  certain communication media and converts received signals back.
+- Traditionally, a modem converts digital data to analog signals
+  for transmission over analog telephone lines and converts analog
+  signals back to digital data.
+- Modern cable/DSL/fiber "modems" may use more complex signaling
+  rather than simply digital-to-analog conversion.
+- Usually connects a home/network to an ISP.
+OSI Layer: Depends on the modem technology; mainly Physical Layer,
+with some Data Link-layer functions in modern broadband equipment.
+
+3. REPEATER
+-----------
+- Operates at the Physical Layer.
+- Regenerates or reshapes weakened signals.
+- Extends the transmission distance of a network.
+- Does not understand IP addresses or MAC addresses.
+- Does not make routing decisions.
+- A traditional repeater has two interfaces/ports.
+OSI Layer: Layer 1 (Physical Layer)
+
+4. HUB
+------
+- A hub is basically a multiport repeater.
+- Operates at the Physical Layer.
+- Receives a signal on one port and repeats it to all other ports.
+- Does not examine MAC addresses.
+- Does not examine IP addresses.
+- All devices connected to a traditional hub share the same
+  collision domain.
+- Hubs are largely obsolete and have been replaced by switches.
+OSI Layer: Layer 1 (Physical Layer)
+
+5. BRIDGE
+---------
+- Connects two LAN segments.
+- Operates at the Data Link Layer.
+- Uses MAC addresses to decide whether to forward or filter frames.
+- Reduces unnecessary traffic between network segments.
+- A bridge is essentially an early/simpler form of a switch.
+OSI Layer: Layer 2 (Data Link Layer)
+
+6. SWITCH
+---------
+- Connects multiple devices within a LAN.
+- Mainly operates at the Data Link Layer.
+- Uses a MAC address table to forward Ethernet frames.
+- Sends a frame only toward the appropriate destination port
+  when the destination MAC address is known.
+- Each switch port is normally a separate collision domain.
+- Modern switches can also perform Layer 3 functions.
+OSI Layer: Mainly Layer 2
+Some switches: Layer 3
+
+7. ROUTER
+---------
+- Connects different networks.
+- Operates mainly at the Network Layer.
+- Uses IP addresses to make forwarding/routing decisions.
+- Determines where packets should be forwarded.
+- Separates broadcast domains.
+- Connects networks such as:
+  LAN -> Internet
+  LAN -> LAN
+  Private network -> Public network
+OSI Layer: Layer 3 (Network Layer)
+
+8. GATEWAY
+----------
+- A gateway connects networks or systems that may use different
+  protocols, architectures, or communication methods.
+- It can perform protocol translation between different systems.
+- In everyday networking, "default gateway" usually refers to
+  the router that forwards traffic from a local network to other
+  networks.
+- A gateway is not restricted to one OSI layer.
+OSI Layer: Can operate at multiple layers,
+depending on the type of gateway.
+
+9. WIRELESS ACCESS POINT (AP)
+-----------------------------
+- Provides wireless network access to Wi-Fi devices.
+- Connects wireless devices to a wired LAN.
+- Primarily operates at the Data Link Layer.
+- Uses MAC addresses for wireless frame communication.
+- Converts/bridges wireless LAN traffic to the wired LAN.
+OSI Layer: Mainly Layer 2
+Physical Layer functions are also involved.
+
+10. FIREWALL
+-----------
+- Controls and filters network traffic according to security rules.
+- Can allow or block traffic based on:
+  - IP addresses
+  - Port numbers
+  - Protocols
+  - Connection state
+  - Applications/content (depending on firewall type)
+- Firewalls can operate at multiple OSI layers.
+- A basic packet-filtering firewall can work mainly at Layers 3 and 4.
+- Modern firewalls can operate at higher layers as well.
+OSI Layer: Layer 3, Layer 4, and sometimes higher layers
+
+11. PROXY SERVER
+---------------
+- Acts as an intermediary between a client and another server.
+- The client sends a request to the proxy.
+- The proxy forwards the request to the destination server.
+- Can provide:
+  - Caching
+  - Access control
+  - Privacy
+  - Content filtering
+  - Traffic monitoring
+- A proxy can operate at different layers depending on its type.
+OSI Layer: Usually Layer 7 for application proxies
+
+12. LOAD BALANCER
+-----------------
+- Distributes incoming network/application traffic across
+  multiple servers.
+- Helps improve:
+  - Performance
+  - Availability
+  - Scalability
+  - Fault tolerance
+- Can make decisions using IP addresses, ports, TCP connections,
+  HTTP requests, URLs, etc.
+- Layer 4 load balancer -> TCP/UDP connections
+- Layer 7 load balancer -> Application-level information
+OSI Layer: Layer 4 or Layer 7
+
+13. MULTIPLEXER (MUX)
+---------------------
+- Combines multiple signals/data streams into one communication
+  channel.
+- Allows multiple signals to share the same transmission medium.
+- A demultiplexer (DEMUX) separates the combined signals at
+  the receiving end.
+OSI Layer: Depends on implementation
+
+14. CS (CIRCUIT SWITCH)
+----------------------
+- Establishes a dedicated communication path between two endpoints.
+- The path remains reserved for the duration of the communication.
+- Traditional telephone networks used circuit switching.
+- Modern Internet communication mainly uses packet switching.
+OSI Layer: Not tied to a single OSI layer
+
+15. IDS (INTRUSION DETECTION SYSTEM)
+------------------------------------
+- Monitors network/system activity for suspicious or malicious
+  behavior.
+- Detects threats and generates alerts.
+- Normally does not automatically block traffic.
+OSI Layer: Can inspect multiple layers
+
+16. IPS (INTRUSION PREVENTION SYSTEM)
+-------------------------------------
+- Detects suspicious or malicious traffic.
+- Can automatically block or prevent detected threats.
+- Usually placed inline with network traffic.
+OSI Layer: Can inspect multiple layers
+
+17. WAF (WEB APPLICATION FIREWALL)
+----------------------------------
+- Protects web applications from application-layer attacks.
+- Examines HTTP/HTTPS traffic.
+- Can block malicious requests such as certain types of:
+  - SQL injection
+  - Cross-site scripting (XSS)
+  - Malicious HTTP requests
+OSI Layer: Layer 7 (Application Layer)
+
+18. DHCP SERVER
+--------------
+- Automatically provides network configuration to clients.
+- Can provide:
+  - IP address
+  - Subnet mask
+  - Default gateway
+  - DNS server
+- DHCP is an Application-layer protocol.
+OSI Layer: Layer 7
+
+19. DNS SERVER
+-------------
+- Converts domain names into IP addresses and can perform
+  other DNS lookups.
+- Example:
+  www.example.com -> IP address
+- DNS is an Application-layer service.
+OSI Layer: Layer 7
+
+20. SERVER
+---------
+- Provides services/resources to other devices (clients).
+- Examples:
+  - Web server
+  - File server
+  - Mail server
+  - Database server
+  - DNS server
+  - DHCP server
+OSI Layer: Depends on the service/application.
+
+IMPORTANT DIFFERENCES
+=====================
+
+REPEATER
+--------
+- Layer 1
+- Regenerates signals
+- Does not understand MAC/IP addresses
+
+HUB
+---
+- Layer 1
+- Multiport repeater
+- Sends incoming signals to all other ports
+
+BRIDGE
+------
+- Layer 2
+- Uses MAC addresses
+- Connects LAN segments
+
+SWITCH
+------
+- Mainly Layer 2
+- Uses MAC address table
+- Connects devices in a LAN
+- More efficient than a hub
+
+ROUTER
+------
+- Layer 3
+- Uses IP addresses
+- Connects different networks
+- Makes routing/forwarding decisions
+
+GATEWAY
+-------
+- Can operate at multiple layers
+- Connects different networks/systems
+- May perform protocol translation
+
+FIREWALL
+--------
+- Filters traffic according to security rules
+- Can operate at multiple layers
+
+ACCESS POINT
+------------
+- Provides Wi-Fi connectivity
+- Bridges wireless devices to a wired LAN
+- Mainly Layer 2
+
+Controllers 
+-----------
+- used to light weight control access points
+- Types: wireless LAN controllers, SDN(software defined network)controllers - eg: DNA(digital network architecture) Center (renamed to catalyst centre)
+
+PoE(power over ethernet) 
+------------------------
+- 802.ef, 802.at(PoE+) ethernets delivers data and supply power 
+____________________________________________________________________________________________________________________________________________________________________________________________
+SIMPLE NETWORK
+==============
+
+Computer
+   |
+   | Ethernet/Wi-Fi
+   v
+NIC
+   |
+   v
+Switch
+   |
+   v
+Router
+   |
+   v
+Modem / ONT
+   |
+   v
+ISP
+   |
+   v
+Internet
+
+A single modern device can perform multiple functions.
+For example, a home "Wi-Fi router" may actually contain:
+- Router
+- Ethernet switch
+- Wireless Access Point
+- Firewall
+- DHCP server
+- DNS forwarding/cache
+- NAT function
+
+Therefore, the physical device you buy is not necessarily
+limited to one OSI layer or one networking function.
+____________________________________________________________________________________________________________________________________________________________________________________________
+Structure of the NETWORK: OSI(Open System Inter-connection) model
+Application Layer	Softwares data in ascii									HTTP,HTTPS, telnet
+Presentation Layer	convert ascii to ebcdic (translation), encryption, abstraction, compression		SSL protocol
+Session Layer		Authentication and Authorisation and establishes a session		
+Transport Layer		Segmentation of data, every segments has src and dest port number and seq no, Flow control, Error control and adds checksum, uses UDP and TCP
+Network Layer		Logical addressing - makes ip packets by assigning sender and receiver ip address to every segment, Routing, Load balancing 
+Data Link Layer		Physical addressing - MAC address(12 digit alpha numeric number)of sender and receiver are assigned to packets to form frame
+Physical Layer		Hardware - transfers Data via optical cables like electric signals
+____________________________________________________________________________________________________________________________________________________________________________________________
+STRUCTURE OF THE NETWORK: OSI (OPEN SYSTEMS INTERCONNECTION) MODEL
+
+7. APPLICATION LAYER
+--------------------
+- Provides network services to applications.
+- Applications generate and consume data at this layer.
+- Data formats/encodings may include ASCII, UTF-8, JSON, XML, etc.
+- Examples: HTTP, HTTPS, FTP, DNS, SMTP, Telnet
+
+6. PRESENTATION LAYER
+---------------------
+- Handles data translation/formatting.
+- Performs encryption and decryption.
+- Performs data compression and decompression.
+- Character-code translation can be performed here (e.g., ASCII to EBCDIC).
+- TLS/SSL is commonly associated with this layer in the OSI model.
+
+5. SESSION LAYER
+----------------
+- Establishes, manages, and terminates communication sessions.
+- Provides session synchronization and checkpoints.
+- Helps manage ongoing communication between applications.
+
+4. TRANSPORT LAYER
+------------------
+- Performs segmentation of application data.
+- Uses source and destination port numbers.
+- Provides sequencing and reliable delivery with TCP.
+- Provides congestion, flow control and error recovery with TCP.
+- Adds a checksum for error detection.
+- TCP and UDP operate at this layer.
+- TCP provides reliable, connection-oriented communication.
+- UDP provides connectionless communication with lower overhead.
+- FTP is NOT a Transport-layer protocol; FTP is an Application-layer protocol.
+- TCP PDU = Segment
+- UDP PDU = Datagram
+
+3. NETWORK LAYER
+----------------
+- Provides logical addressing using IP addresses.
+- Adds source and destination IP addresses.
+- Encapsulates transport-layer data into IP packets.
+- Performs routing and packet forwarding.
+- Routers primarily operate at this layer.
+- IPv4 and IPv6 operate at this layer.
+- PDU = Packet
+- A router routes packets between different IP networks. Each router interface separates broadcast domains and also separates Layer-2 collision domains
+- router ports/interfaces - Gi0/0, Gi0/1 (Gigabit ithernet)
+- connects switch
+- layer 3 switch = layer 2 switch + route processor
+
+Firewall: next-generation, stateful (allows the data only if asked from any website, and only from allowed websites)
+Deep packet inspection, application awareness and control
+
+IPS(Intrusion prevention system): Real-time monitoring, Signature-based detection, anomaly detection
+
+2. DATA LINK LAYER
+------------------
+- Provides physical addressing using MAC addresses.
+- Adds source and destination MAC addresses.
+- Encapsulates the Network-layer packet into a frame.
+- Performs framing.
+- Performs error detection.
+- Handles access to the physical transmission medium.
+- Ethernet and Wi-Fi have Data Link-layer functions.
+- PDU = Frame
+- layer 2 switch contains ports with the connected device MAC addresses, switches has collision domains (ports create collision domain, so each devices data is not collided) and 1 broadcast domain(sends data to all connected device)
+Hub(old device) used to connect all devices which caused collision
+
+1. PHYSICAL LAYER
+-----------------
+- Transmits raw bits (0s and 1s).
+- Deals with physical hardware and transmission media.
+- Fiber-optic cables transmit data using light signals.
+- Copper cables transmit data using electrical signals.
+- Wireless networks transmit data using radio signals.
+- PDU = Bits
+
+DATA ENCAPSULATION
+------------------
+Application Layer  -> Data
+Transport Layer    -> Segment / Datagram
+Network Layer      -> Packet
+Data Link Layer    -> Frame
+Physical Layer     -> Bits
+
+IMPORTANT:
+-----------
+FTP      = Application Layer
+HTTP     = Application Layer
+HTTPS    = Application Layer
+DNS      = Application Layer
+TCP      = Transport Layer
+UDP      = Transport Layer
+IP       = Network Layer
+Ethernet = Data Link Layer
+Wi-Fi    = Data Link + Physical Layer functions
+____________________________________________________________________________________________________________________________________________________________________________________________
+TCP/IP Model - internet protocol suite (5 layers)
+
+Application Layer
+Transport Layer
+Network Layer
+Data Link Layer
+Physical Layer
+
+Application   -> Adds HTTPm header to data
+     |
+     v
+Transport     -> Adds Port Numbers (tcp header)
+     |
+     v
+Network       -> Adds Source/Destination IP Addresses (IP header)
+     |
+     v
+Data Link     -> Adds Source/Destination MAC Addresses
+     |
+     v
+Physical      -> Transmits Bits as Light/Electrical/Radio Signals
+____________________________________________________________________________________________________________________________________________________________________________________________
+Protocols - rules defined to communicate on networks, defined by Internet Society.
+
+Network protocols:
+Application layer - http, dns, DHCP, ftp, sftp, smtp, pop3/imap, ssh, vnc, telnet, websocket
+Transport layer - tcp, udp
+Network layer - ipv4, ipv6, icmp, arp
+	routing protocols - ospf, bgp, eigrp
+Datalink layer - ethernet, vlan, wifi(wpa2, wpa3)
+	security protocols - tls, ssl, ssh, https
+_________________________________________________________________________________________________
+Application layer protocol:
+HTTP: application layer protocol needs transport protocol, uses TCP 
+	between client and server
+	Stateless protocol - server do not store any data of client, but cookies (unique string) are created and stored in client browser, so browser sends the cookie with the next request header, so we can feel that the server stores the state bit its not.
+	cookies contains session id(which is created when the user logged in) 
+	connection oriented 
+	http methods - to communicate with server, eg: get, post, put, delete,
+	http header - contains all the information about the req and res
+	status codes:
+| Code | Category      | Meaning                                     |
+| ---- | ------------- | ------------------------------------------- |
+| 1xx  | Informational | "I'm still processing / here's information" |
+| 2xx  | Success       | "Your request worked"                       |
+| 3xx  | Redirection   | "Go somewhere else / use cached version"    |
+| 4xx  | Client error  | "Something is wrong with your request"      |
+| 5xx  | Server error  | "The server failed to handle it"            |
+
 DNS - Domain Name system - list of ip address and domain name, port 53,  uses both tcp and UDP in transport layer
 eg: https://google.com    172.217.19.164
-
 CURL OUTPUT                                       | WHAT IT DOES
 --------------------------------------------------|------------------------------------------
 $ curl -v https://example.com                     | Makes HTTPS request; -v shows details
@@ -179,584 +727,9 @@ $ dig google.com
 dig is a flexible tool for interrogating DNS name servers. It performs DNS lookups and displays the
 answers that are returned from the name server(s) that were queried. Most DNS administrators use dig
 to troubleshoot DNS problems because of its flexibility, ease of use and clarity of output. Other
-lookup tools tend to have less functionality than dig 
-_______________________________________________________________________________________________________________
+lookup tools tend to have less functionality than dig
+
 DHCP - internet Service provider providers modem/router which has a global ip address and the devices connected by it is assigned local ip addresses by DHCP (Dynamic host control protocol)
-
-ARP - Address Resolution Protocol, happens between the Network layer and Data Link layer, when a device needs to send an IPv4 packet to another device on the same local network
-
-Port - address for every applications in the device, 16 bit number so total ports available = 2^16 = 65,536
-Reserved ports - 0 to 1023 - Used by standard services and protocols
-Registered ports - 1024–49151 - Used by applications and services registered with IANA.
-Private ports/Ephemeral ports - 49152–65535 - Usually used temporarily by client applications for outgoing connections.
-Eg:
-20/21 - FTP - File Transfer
-22 - SSH - Secure Remote Access
-23 - Telnet - Remote Access
-25 - SMTP - Sending Email
-53 - DNS - Domain Name Resolution
-67/68 - DHCP - Automatic IP Configuration
-80 - HTTP - Web Traffic
-110 - POP3 - Receiving Email
-123 - NTP - Time Synchronization
-143 - IMAP - Receiving/Managing Email
-161/162 - SNMP - Network Monitoring
-389 - LDAP - Directory Services
-443 - HTTPS - Secure Web Traffic
-445 - SMB - Windows File/Printer Sharing
-465 - SMTPS - Secure Email
-587 - SMTP - Email Submission
-636 - LDAPS - Secure LDAP
-993 - IMAPS - Secure IMAP
-995 - POP3S - Secure POP3
-3306 - MySQL - Database
-3389 - RDP - Windows Remote Desktop
-5432 - PostgreSQL - Database
-6379 - Redis - In-Memory Database
-
- Device1
- Device2, ------> Modem/Router ---> ISP ---> Internet
- Device3.. 
-(Private ips)     (1 public ip)
- 
-When the req is sent to internet by a Device via Modem and ISP, the response comes to Modem, which uses NAT(Network access translator) to findout which device made request 
-____________________________________________________________________________________________________________________________________________________________________________________________
-Types of Networks: LAN(ethernets, wifi), MAN, WAN(Optical fibre cables, SONET, Frame replay), Internet 
-
-Topologies - Bus, Ring, Star(used in organizations), Mesh, Hybrid 
-
-3 tier topology - access layer(access point and wired switches), distribution/aggregation layers(router, firewall, ips), core layer(High-Speed Backbone Switches, core routers and high speed network)
-
-2 tier topology - access and core layer(with Dist layer) 
-____________________________________________________________________________________________________________________________________________________________________________________________
-NETWORK DEVICES AND THEIR OSI LAYERS
-====================================
-
-1. NIC (NETWORK INTERFACE CARD)
---------------------------------
-- Connects a computer/device to a network.
-- Can provide Ethernet or Wi-Fi connectivity.
-- Operates mainly at the Physical Layer and Data Link Layer.
-- Has a MAC address.
-- Examples:
-  - Ethernet network card
-  - Wi-Fi adapter
-- Receives bits and formatted into a frame 
-[dest Mac | src Mac | dest IP | src IP | data | Frame Check Seq ]
-CRC is calculated and if it is matched with CRC in the FCS in frame it checks the dest Mac with the NIC Mac and processes the data by creating packet with 
- | dest IP | src IP | data |
-If CRC does not match it discards the frame
-- does the reverse process when sending packets
-OSI Layer: Layer 1 + Layer 2
-
-
-2. MODEM
---------
-- Modem = MOdulator + DEModulator.
-- Converts digital data to signals suitable for transmission over
-  certain communication media and converts received signals back.
-- Traditionally, a modem converts digital data to analog signals
-  for transmission over analog telephone lines and converts analog
-  signals back to digital data.
-- Modern cable/DSL/fiber "modems" may use more complex signaling
-  rather than simply digital-to-analog conversion.
-- Usually connects a home/network to an ISP.
-
-OSI Layer: Depends on the modem technology; mainly Physical Layer,
-with some Data Link-layer functions in modern broadband equipment.
-
-
-3. REPEATER
------------
-- Operates at the Physical Layer.
-- Regenerates or reshapes weakened signals.
-- Extends the transmission distance of a network.
-- Does not understand IP addresses or MAC addresses.
-- Does not make routing decisions.
-- A traditional repeater has two interfaces/ports.
-
-OSI Layer: Layer 1 (Physical Layer)
-
-
-4. HUB
-------
-- A hub is basically a multiport repeater.
-- Operates at the Physical Layer.
-- Receives a signal on one port and repeats it to all other ports.
-- Does not examine MAC addresses.
-- Does not examine IP addresses.
-- All devices connected to a traditional hub share the same
-  collision domain.
-- Hubs are largely obsolete and have been replaced by switches.
-
-OSI Layer: Layer 1 (Physical Layer)
-
-
-5. BRIDGE
----------
-- Connects two LAN segments.
-- Operates at the Data Link Layer.
-- Uses MAC addresses to decide whether to forward or filter frames.
-- Reduces unnecessary traffic between network segments.
-- A bridge is essentially an early/simpler form of a switch.
-
-OSI Layer: Layer 2 (Data Link Layer)
-
-
-6. SWITCH
----------
-- Connects multiple devices within a LAN.
-- Mainly operates at the Data Link Layer.
-- Uses a MAC address table to forward Ethernet frames.
-- Sends a frame only toward the appropriate destination port
-  when the destination MAC address is known.
-- Each switch port is normally a separate collision domain.
-- Modern switches can also perform Layer 3 functions.
-
-OSI Layer: Mainly Layer 2
-Some switches: Layer 3
-
-
-7. ROUTER
----------
-- Connects different networks.
-- Operates mainly at the Network Layer.
-- Uses IP addresses to make forwarding/routing decisions.
-- Determines where packets should be forwarded.
-- Separates broadcast domains.
-- Connects networks such as:
-  LAN -> Internet
-  LAN -> LAN
-  Private network -> Public network
-
-OSI Layer: Layer 3 (Network Layer)
-
-
-8. GATEWAY
-----------
-- A gateway connects networks or systems that may use different
-  protocols, architectures, or communication methods.
-- It can perform protocol translation between different systems.
-- In everyday networking, "default gateway" usually refers to
-  the router that forwards traffic from a local network to other
-  networks.
-- A gateway is not restricted to one OSI layer.
-
-OSI Layer: Can operate at multiple layers,
-depending on the type of gateway.
-
-
-9. WIRELESS ACCESS POINT (AP)
------------------------------
-- Provides wireless network access to Wi-Fi devices.
-- Connects wireless devices to a wired LAN.
-- Primarily operates at the Data Link Layer.
-- Uses MAC addresses for wireless frame communication.
-- Converts/bridges wireless LAN traffic to the wired LAN.
-
-OSI Layer: Mainly Layer 2
-Physical Layer functions are also involved.
-
-
-10. FIREWALL
------------
-- Controls and filters network traffic according to security rules.
-- Can allow or block traffic based on:
-  - IP addresses
-  - Port numbers
-  - Protocols
-  - Connection state
-  - Applications/content (depending on firewall type)
-- Firewalls can operate at multiple OSI layers.
-- A basic packet-filtering firewall can work mainly at Layers 3 and 4.
-- Modern firewalls can operate at higher layers as well.
-
-OSI Layer: Layer 3, Layer 4, and sometimes higher layers
-
-
-11. PROXY SERVER
----------------
-- Acts as an intermediary between a client and another server.
-- The client sends a request to the proxy.
-- The proxy forwards the request to the destination server.
-- Can provide:
-  - Caching
-  - Access control
-  - Privacy
-  - Content filtering
-  - Traffic monitoring
-- A proxy can operate at different layers depending on its type.
-
-OSI Layer: Usually Layer 7 for application proxies
-
-
-12. LOAD BALANCER
------------------
-- Distributes incoming network/application traffic across
-  multiple servers.
-- Helps improve:
-  - Performance
-  - Availability
-  - Scalability
-  - Fault tolerance
-- Can make decisions using IP addresses, ports, TCP connections,
-  HTTP requests, URLs, etc.
-- Layer 4 load balancer -> TCP/UDP connections
-- Layer 7 load balancer -> Application-level information
-
-OSI Layer: Layer 4 or Layer 7
-
-
-13. MULTIPLEXER (MUX)
----------------------
-- Combines multiple signals/data streams into one communication
-  channel.
-- Allows multiple signals to share the same transmission medium.
-- A demultiplexer (DEMUX) separates the combined signals at
-  the receiving end.
-
-OSI Layer: Depends on implementation
-
-
-14. CS (CIRCUIT SWITCH)
-----------------------
-- Establishes a dedicated communication path between two endpoints.
-- The path remains reserved for the duration of the communication.
-- Traditional telephone networks used circuit switching.
-- Modern Internet communication mainly uses packet switching.
-
-OSI Layer: Not tied to a single OSI layer
-
-
-15. IDS (INTRUSION DETECTION SYSTEM)
-------------------------------------
-- Monitors network/system activity for suspicious or malicious
-  behavior.
-- Detects threats and generates alerts.
-- Normally does not automatically block traffic.
-
-OSI Layer: Can inspect multiple layers
-
-
-16. IPS (INTRUSION PREVENTION SYSTEM)
--------------------------------------
-- Detects suspicious or malicious traffic.
-- Can automatically block or prevent detected threats.
-- Usually placed inline with network traffic.
-
-OSI Layer: Can inspect multiple layers
-
-
-17. WAF (WEB APPLICATION FIREWALL)
-----------------------------------
-- Protects web applications from application-layer attacks.
-- Examines HTTP/HTTPS traffic.
-- Can block malicious requests such as certain types of:
-  - SQL injection
-  - Cross-site scripting (XSS)
-  - Malicious HTTP requests
-
-OSI Layer: Layer 7 (Application Layer)
-
-
-18. DHCP SERVER
---------------
-- Automatically provides network configuration to clients.
-- Can provide:
-  - IP address
-  - Subnet mask
-  - Default gateway
-  - DNS server
-- DHCP is an Application-layer protocol.
-
-OSI Layer: Layer 7
-
-
-19. DNS SERVER
--------------
-- Converts domain names into IP addresses and can perform
-  other DNS lookups.
-- Example:
-  www.example.com -> IP address
-- DNS is an Application-layer service.
-
-OSI Layer: Layer 7
-
-
-20. SERVER
----------
-- Provides services/resources to other devices (clients).
-- Examples:
-  - Web server
-  - File server
-  - Mail server
-  - Database server
-  - DNS server
-  - DHCP server
-
-OSI Layer: Depends on the service/application.
-
-
-IMPORTANT DIFFERENCES
-=====================
-
-REPEATER
---------
-- Layer 1
-- Regenerates signals
-- Does not understand MAC/IP addresses
-
-
-HUB
----
-- Layer 1
-- Multiport repeater
-- Sends incoming signals to all other ports
-
-
-BRIDGE
-------
-- Layer 2
-- Uses MAC addresses
-- Connects LAN segments
-
-
-SWITCH
-------
-- Mainly Layer 2
-- Uses MAC address table
-- Connects devices in a LAN
-- More efficient than a hub
-
-
-ROUTER
-------
-- Layer 3
-- Uses IP addresses
-- Connects different networks
-- Makes routing/forwarding decisions
-
-
-GATEWAY
--------
-- Can operate at multiple layers
-- Connects different networks/systems
-- May perform protocol translation
-
-
-FIREWALL
---------
-- Filters traffic according to security rules
-- Can operate at multiple layers
-
-
-ACCESS POINT
-------------
-- Provides Wi-Fi connectivity
-- Bridges wireless devices to a wired LAN
-- Mainly Layer 2
-
-Controllers - used to light weight control access points
-Types - wireless LAN controllers, SDN(software defined network)controllers - eg: DNA(digital network architecture) Center (renamed to catalyst centre)
-
-PoE(power over ethernet) : 802.ef, 802.at ethernets delivers data and supply power 
-
-SIMPLE NETWORK
-==============
-
-Computer
-   |
-   | Ethernet/Wi-Fi
-   v
-NIC
-   |
-   v
-Switch
-   |
-   v
-Router
-   |
-   v
-Modem / ONT
-   |
-   v
-ISP
-   |
-   v
-Internet
-
-A single modern device can perform multiple functions.
-For example, a home "Wi-Fi router" may actually contain:
-- Router
-- Ethernet switch
-- Wireless Access Point
-- Firewall
-- DHCP server
-- DNS forwarding/cache
-- NAT function
-
-Therefore, the physical device you buy is not necessarily
-limited to one OSI layer or one networking function.
-____________________________________________________________________________________________________________________________________________________________________________________________
-Structure of the NETWORK: OSI(Open System Inter-connection) model
-Application Layer	Softwares data in ascii									HTTP,HTTPS, telnet
-Presentation Layer	convert ascii to ebcdic (translation), encryption, abstraction, compression		SSL protocol
-Session Layer		Authentication and Authorisation and establishes a session		
-Transport Layer		Segmentation of data, every segments has src and dest port number and seq no, Flow control, Error control and adds checksum, uses UDP and TCP
-Network Layer		Logical addressing - makes ip packets by assigning sender and receiver ip address to every segment, Routing, Load balancing 
-Data Link Layer		Physical addressing - MAC address(12 digit alpha numeric number)of sender and receiver are assigned to packets to form frame
-Physical Layer		Hardware - transfers Data via optical cables like electric signals
-____________________________________________________________________________________________________________________________________________________________________________________________
-STRUCTURE OF THE NETWORK: OSI (OPEN SYSTEMS INTERCONNECTION) MODEL
-
-7. APPLICATION LAYER
---------------------
-- Provides network services to applications.
-- Applications generate and consume data at this layer.
-- Data formats/encodings may include ASCII, UTF-8, JSON, XML, etc.
-- Examples: HTTP, HTTPS, FTP, DNS, SMTP, Telnet
-
-
-6. PRESENTATION LAYER
----------------------
-- Handles data translation/formatting.
-- Performs encryption and decryption.
-- Performs data compression and decompression.
-- Character-code translation can be performed here (e.g., ASCII to EBCDIC).
-- TLS/SSL is commonly associated with this layer in the OSI model.
-
-
-5. SESSION LAYER
-----------------
-- Establishes, manages, and terminates communication sessions.
-- Provides session synchronization and checkpoints.
-- Helps manage ongoing communication between applications.
-
-
-4. TRANSPORT LAYER
-------------------
-- Performs segmentation of application data.
-- Uses source and destination port numbers.
-- Provides sequencing and reliable delivery with TCP.
-- Provides congestion, flow control and error recovery with TCP.
-- Adds a checksum for error detection.
-- TCP and UDP operate at this layer.
-- TCP provides reliable, connection-oriented communication.
-- UDP provides connectionless communication with lower overhead.
-- FTP is NOT a Transport-layer protocol; FTP is an Application-layer protocol.
-- TCP PDU = Segment
-- UDP PDU = Datagram
-
-
-3. NETWORK LAYER
-----------------
-- Provides logical addressing using IP addresses.
-- Adds source and destination IP addresses.
-- Encapsulates transport-layer data into IP packets.
-- Performs routing and packet forwarding.
-- Routers primarily operate at this layer.
-- IPv4 and IPv6 operate at this layer.
-- PDU = Packet
-- A router routes packets between different IP networks. Each router interface separates broadcast domains and also separates Layer-2 collision domains
-- layer 3 switch = layer 2 switch + route processor
-
-Firewall: next-generation, stateful (allows the data only if asked, and only from allowed websites)
-Deep packet inspection, application awareness and control
-
-IPS(Intrusion prevention system): Real-time monitoring, anomaly detection
-
-2. DATA LINK LAYER
-------------------
-- Provides physical addressing using MAC addresses.
-- Adds source and destination MAC addresses.
-- Encapsulates the Network-layer packet into a frame.
-- Performs framing.
-- Performs error detection.
-- Handles access to the physical transmission medium.
-- Ethernet and Wi-Fi have Data Link-layer functions.
-- PDU = Frame
-- layer 2 switch contains ports with the connected device MAC addresses, switches has collision domains (so each devices data is not collided) and 1 broadcast domain(sends data to all connected device)
-
-1. PHYSICAL LAYER
------------------
-- Transmits raw bits (0s and 1s).
-- Deals with physical hardware and transmission media.
-- Fiber-optic cables transmit data using light signals.
-- Copper cables transmit data using electrical signals.
-- Wireless networks transmit data using radio signals.
-- PDU = Bits
-
-
-DATA ENCAPSULATION
-------------------
-Application Layer  -> Data
-Transport Layer    -> Segment / Datagram
-Network Layer      -> Packet
-Data Link Layer    -> Frame
-Physical Layer     -> Bits
-
-
-IMPORTANT:
------------
-FTP      = Application Layer
-HTTP     = Application Layer
-HTTPS    = Application Layer
-DNS      = Application Layer
-TCP      = Transport Layer
-UDP      = Transport Layer
-IP       = Network Layer
-Ethernet = Data Link Layer
-Wi-Fi    = Data Link + Physical Layer functions
-____________________________________________________________________________________________________________________________________________________________________________________________
-
-TCP/IP Model - internet protocol suite (5 layers)
-
-Application Layer
-Transport Layer
-Network Layer
-Data Link Layer
-Physical Layer
-
-Application   -> Adds HTTPm header to data
-     |
-     v
-Transport     -> Adds Port Numbers (tcp header)
-     |
-     v
-Network       -> Adds Source/Destination IP Addresses (IP header)
-     |
-     v
-Data Link     -> Adds Source/Destination MAC Addresses
-     |
-     v
-Physical      -> Transmits Bits as Light/Electrical/Radio Signals
-____________________________________________________________________________________________________________________________________________________________________________________________
-Network protocols:
-
-Application layer - http, dns, DHCP, ftp, sftp, smtp, pop3/imap, ssh, vnc, telnet, websocket
-Transport layer - tcp, udp
-Network layer - ipv4, ipv6, icmp, arp
-	routing protocols - ospf, bgp
-Datalink layer - ethernet, vlan, wifi(wpa2, wpa3)
-	security protocols - tls, ssl, ssh, https
-____________________________________________________________________________________________________________________________________________________________________________________________
-Application layer protocol:
-HTTP: application layer protocol needs transport protocol, uses TCP 
-	between client and server
-	Stateless protocol - server do not store any data of client, but cookies (unique string) are created and stored in client browser, so browser sends the cookie with the next request header, so we can feel that the server stores the state bit its not.
-	cookies contains session id(which is created when the user logged in) 
-	connection oriented 
-	http methods - to communicate with server, eg: get, post, put, delete,
-	http header - contains all the information about the req and res
-	status codes:
-| Code | Category      | Meaning                                     |
-| ---- | ------------- | ------------------------------------------- |
-| 1xx  | Informational | "I'm still processing / here's information" |
-| 2xx  | Success       | "Your request worked"                       |
-| 3xx  | Redirection   | "Go somewhere else / use cached version"    |
-| 4xx  | Client error  | "Something is wrong with your request"      |
-| 5xx  | Server error  | "The server failed to handle it"            |
-
 FTP: File transfer protocol, connection oriented, port 21,20
 	ftp has 2 channels for connection - control (to use commans) and data (for sending data)
 	active mode - 2 way communication between client and server
@@ -852,6 +825,9 @@ Data               → Application data
 
 ____________________________________________________________________________________________________________________________________________________________________________________________
 Network Layer protocols:
+
+ARP - Address Resolution Protocol, happens between the Network layer and Data Link layer, when a device needs to send an IPv4 packet to another device on the same local network
+
 IPv4: IP version 4 represents the address of a device on network with dotted decimal notation(192.168.1.10) or binary notation (11000000.10101000.00000001.00001010)
 IPv4 PACKET
 
