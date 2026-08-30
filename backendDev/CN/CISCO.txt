@@ -72,7 +72,8 @@ Router(config-if)# exit
 Router(config)# exit
 Router#
 Router# disable
-Router>
+Router> end 	//takes out of switch
+
 
 
 4. BASIC COMMANDS

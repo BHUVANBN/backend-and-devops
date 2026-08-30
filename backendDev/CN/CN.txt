@@ -220,7 +220,7 @@ OSI Layer: Layer 1 (Physical Layer)
 ------
 - A hub is basically a multiport repeater.
 - Operates at the Physical Layer.
-- Receives a signal on one port and repeats it to all other ports.
+- Receives a signal on one port and repeats it to all other ports (multiport repeater, used in star topology)
 - Does not examine MAC addresses.
 - Does not examine IP addresses.
 - All devices connected to a traditional hub share the same
@@ -567,7 +567,7 @@ IPS(Intrusion prevention system): Real-time monitoring, Signature-based detectio
 2. DATA LINK LAYER
 ------------------
 - Provides physical addressing using MAC addresses.
-- Adds source and destination MAC addresses.
+- Adds source and  destination MAC addresses.
 - Encapsulates the Network-layer packet into a frame.
 - Performs framing.
 - Performs error detection.
@@ -575,7 +575,12 @@ IPS(Intrusion prevention system): Real-time monitoring, Signature-based detectio
 - Ethernet and Wi-Fi have Data Link-layer functions.
 - PDU = Frame
 - layer 2 switch contains ports with the connected device MAC addresses, switches has collision domains (ports create collision domain, so each devices data is not collided) and 1 broadcast domain(sends data to all connected device)
-Hub(old device) used to connect all devices which caused collision
+
+Hub(old device) used to connect all devices which caused collision, it has single collision and broadcast domain
+
+Bridges reduces collision by learning MAC address of the connected devices using software but it is very slow compared to the switch(done using ASIC hardware, and has more ports / collision domains)
+
+Access point for wireless connection, controller is used to configure the light weight access points, so the switch is connected in between the controller and access point via PoE ethernet and configured using controller
 
 1. PHYSICAL LAYER
 -----------------
