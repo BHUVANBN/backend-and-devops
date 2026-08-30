@@ -832,6 +832,11 @@ ________________________________________________________________________________
 Network Layer protocols:
 
 ARP - Address Resolution Protocol, happens between the Network layer and Data Link layer, when a device needs to send an IPv4 packet to another device on the same local network
+devices knows MAC addresses using this protocol
+C:\>arp -a
+  Internet Address      Physical Address      Type
+  192.168.1.2           0006.2a08.b59c        dynamic
+the device got mac address using arp protocol by sending broadcast to the network (whos got ip address xyz) then the xyz ip address holder replies with its mac address
 
 IPv4: IP version 4 represents the address of a device on network with dotted decimal notation(192.168.1.10) or binary notation (11000000.10101000.00000001.00001010)
 IPv4 PACKET
