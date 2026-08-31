@@ -831,14 +831,38 @@ Data               → Application data
 ____________________________________________________________________________________________________________________________________________________________________________________________
 Network Layer protocols:
 
-ARP - Address Resolution Protocol, happens between the Network layer and Data Link layer, when a device needs to send an IPv4 packet to another device on the same local network
-devices knows MAC addresses using this protocol
+ARP - Address Resolution Protocol, happens between the Network layer and Data Link layer, when a device needs to send an IPv4 packet to another device on the same local network devices knows MAC addresses using this protocol
 C:\>arp -a
   Internet Address      Physical Address      Type
   192.168.1.2           0006.2a08.b59c        dynamic
 the device got mac address using arp protocol by sending broadcast to the network (whos got ip address xyz) then the xyz ip address holder replies with its mac address
 
 IPv4: IP version 4 represents the address of a device on network with dotted decimal notation(192.168.1.10) or binary notation (11000000.10101000.00000001.00001010)
+
+traceroute is used to trace the ip addresses of the packet route
+$ traceroute -4 google.com
+traceroute to google.com (142.251.106.113), 30 hops max, 60 byte packets
+ 1  _gateway (192.168.0.1)  2.000 ms  1.949 ms  3.990 ms
+ 2  blr-tdc-bngs-14 (103.57.86.2)  5.180 ms  5.153 ms  5.128 ms
+ 3  103.57.86.1 (103.57.86.1)  8.127 ms  8.102 ms  8.074 ms
+ 4  103.57.86.50 (103.57.86.50)  18.772 ms *  18.720 ms
+ 5  142.250.166.160 (142.250.166.160)  18.695 ms  18.668 ms  18.641 ms
+ 6  * * *
+ 7  142.250.214.112 (142.250.214.112)  20.730 ms 142.251.77.100 (142.251.77.100)  18.056 ms 142.251.70.56 (142.251.70.56)  17.971 ms
+ 8  192.178.110.206 (192.178.110.206)  20.060 ms 192.178.110.248 (192.178.110.248)  19.269 ms  19.209 ms
+ 9  142.251.65.155 (142.251.65.155)  20.554 ms 192.178.82.105 (192.178.82.105)  20.713 ms 142.251.66.243 (142.251.66.243)  20.654 ms
+10  142.251.254.186 (142.251.254.186)  19.497 ms 142.251.193.180 (142.251.193.180)  20.580 ms 142.251.238.224 (142.251.238.224)  19.423 ms
+11  * * *
+12  * * *
+13  * * *
+14  * * *
+15  * * *
+16  * * *
+17  * * *
+18  cm-in-f113.1e100.net (142.251.106.113)  22.804 ms  21.226 ms  16.373 ms
+
+wireshark is used for packet analysis
+
 IPv4 PACKET
 
   0                   15 16                  31
@@ -898,6 +922,10 @@ Eg: Lets say the ipv4 = 192.168.1.10/16 (11111111.11111111.00000000.00000000) ho
 --> 
 11111111.11111111.11110000.00000000 (192.168.1.10/20 or 255.255.240.0) this creates 2^n (where n = number of bits borrowed from the original host portion) i.e 2^4 = 16 subnetworks and 2^h - 2 (where h = number of 0's in subnet mask) i.e 2^12 - 2 = 4094 per subnet - around 65504 hosts 
 The small difference(65534 - 65504 = 30) comes from each subnet needing its own network and broadcast address
+
+broadcast address will be the last address in a subnet
+eg: network = 192.168.2.0/28 with subnet 255.255.255.240(111111111.11111111.11111111.11110000) the hosts range from 192.168.2.1/28(11000000.10101000.00000010.0000 0001) to 192.168.2.14/28(11000000.10101000.00000010.0000 1110)
+and last ip address of subnet 192.168.2.15/28 (11000000.10101000.00000010.0000 1111) is broadcast address
 SUBNET             HOST RANGE                         BROADCAST
 ----------------  --------------------------------- -----------------
 192.168.0.0/20     192.168.0.1   - 192.168.15.254   192.168.15.255
