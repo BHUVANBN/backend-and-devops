@@ -170,6 +170,12 @@ ________________________________________________________________________________
 IOS - Internetwork operating system of the CISCO networking devices
 Console cable is used to connect to the device and configure it with initial configuration 
 And then use telnet/ssh to access it further 
+To configure using terminal we need this setting on terminal:
+Bits per second : 9600
+Data bits       : 8
+Parity          : None
+Stop bits       : 1
+Flow control    : None
 
 _________________________________________________________________________________________________________________________________________________
 NETWORK DEVICES AND THEIR OSI LAYERS

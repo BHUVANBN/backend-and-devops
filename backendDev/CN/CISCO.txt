@@ -1,9 +1,4 @@
-CISCO IOS — CLI NOTES
-
-1. WHAT IS CISCO IOS
-
-Cisco IOS (Internetwork Operating System) is the operating system used by many Cisco routers and switches.
-
+1. CISCO IOS: Cisco IOS (Internetwork Operating System) is the operating system used by many Cisco routers and switches.
 It provides:
 - Interface configuration
 - IP addressing
@@ -18,9 +13,7 @@ It provides:
 
 
 2. HOW YOU CONNECT TO A CISCO DEVICE
-
 Physical/virtual setup:
-
 PC/Laptop
     |
     | Console cable / USB / SSH
@@ -30,138 +23,79 @@ Cisco Router/Switch
     +-- Network interfaces --> Other devices
 
 CLI access methods:
-
-Console:
-PC Terminal → Console cable → Cisco device → IOS CLI
-
-SSH:
-PC Terminal → Network → TCP port 22 → Cisco device → IOS CLI
-
-Telnet:
-PC Terminal → Network → TCP port 23 → Cisco device → IOS CLI
-(Not secure; use SSH instead)
-
-For a network lab:
-
-PC ── Switch ── Router ── Switch ── PC
+Console: PC Terminal → Console cable → Cisco device → IOS CLI
+SSH: PC Terminal → Network → TCP port 22 → Cisco device → IOS CLI
+Telnet(Not secure; use SSH instead): PC Terminal → Network → TCP port 23 → Cisco device → IOS CLI
+For a network lab: PC ── Switch ── Router ── Switch ── PC
 
 
 3. IOS CLI MODES
-
-User EXEC mode:
-Router>
-
-Privileged EXEC mode:
-Router#
-
-Global configuration mode:
-Router(config)#
-
-Interface configuration mode:
-Router(config-if)#
-
-Line configuration mode:
-Router(config-line)#
+User EXEC mode: 		Router>
+Privileged EXEC mode:		Router#
+Global configuration mode:	Router(config)#
+Interface configuration mode:	Router(config-if)#
+Line configuration mode:	Router(config-line)#
 
 Move between modes:
-
 Router> enable
 Router# configure terminal
 Router(config)# interface gigabitEthernet 0/0
-Router(config-if)# exit
+Router(config-if)# exit			//or end cmd takes directly to user mode
 Router(config)# exit
-Router#
+Router# 
 Router# disable
 Router> end 	//takes out of switch
 
 
-
 4. BASIC COMMANDS
-
-enable
-    Enter privileged EXEC mode.
-
-disable
-    Return to user EXEC mode.
-
-configure terminal
-    Enter global configuration mode.
-
-exit
-    Move back one configuration level.
-
-end
-    Immediately return to privileged EXEC mode.
-
-?
-    Show available commands.
-
-show ?
-    Show available show commands.
-
-show running-config
-    Display current configuration in RAM.
-
-show startup-config
-    Display saved configuration in NVRAM.
-
-show version
-    Show IOS version, hardware and device information.
-
-hostname R1
-    Change device hostname.
+enable: Enter privileged EXEC mode.
+disable: Return to user EXEC mode.
+configure terminal: Enter global configuration mode.
+exit: Move back one configuration level.
+end: Immediately return to privileged EXEC mode.
+? :Show available commands.
+show ? :Show available show commands.
+show running-config: Display current configuration in RAM.
+show startup-config: Display saved configuration in NVRAM.
+show version: Show IOS version, hardware and device information.
+hostname R1: Change device hostname.
 
 
 5. CONFIGURE A ROUTER INTERFACE
-
 Router> enable
 Router# configure terminal
 Router(config)# hostname R1
-
+ 
 R1(config)# interface gigabitEthernet 0/0
 R1(config-if)# ip address 192.168.1.1 255.255.255.0
 R1(config-if)# no shutdown
 R1(config-if)# exit
-
 R1(config)# end
 
 Check:
-
 R1# show ip interface brief
-
-Example:
-
 Interface              IP-Address      Status      Protocol
 GigabitEthernet0/0     192.168.1.1     up          up
 
-no shutdown
-    Enables an administratively disabled interface.
-
-shutdown
-    Disables the interface.
+no shutdown - Enables an administratively disabled interface.
+shutdown - Disables the interface.
 
 
 6. CONNECTING A PC TO THE ROUTER
-
 Router:
-
-Interface:
-G0/0
+Interface: G0/0
 IP: 192.168.1.1
 Mask: 255.255.255.0
 
 PC:
-
 IP: 192.168.1.10
 Mask: 255.255.255.0
 Default gateway: 192.168.1.1
 
 Test:
-
 PC> ping 192.168.1.1
 
 If successful:
-
 PC → Switch/Link → Router
 
 
