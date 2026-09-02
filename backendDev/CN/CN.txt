@@ -977,6 +977,137 @@ IMPORTANT:
 Classful addressing is largely obsolete.
 Modern IPv4 networks use CIDR/subnetting, e.g. /20, /24, /27, etc.
 
+Private addresses: Private addressing exists mainly because IPv4 has only about 4.3 billion addresses, while the world needed far more devices
+Companies with 1000 employees computer doesn't need every employee's PC to be directly reachable from the Internet (but via router) so,
+                 INTERNET
+                    │
+              Public IP                     //the public IP is usually on the router's WAN interface
+                    │
+                 Router
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+       Private              Private         //here private network can include the routers as well 
+       network              network
+          │                   │
+       PC 1                PC 500
+   192.168.1.10         192.168.1.50
+Those two 192.168.1.10 addresses exist in different private networks, so they don't need to be globally unique
+The Internet Engineering Task Force (IETF) formally reserved three IPv4 blocks for private use in RFC 1918 in 1996.
+10.0.0.0    – 10.255.255.255
+172.16.0.0  – 172.31.255.255
+192.168.0.0 – 192.168.255.255
+historically from Class A,B,C 
+
+NAT - Network Address translation 
+Private IP addresses work inside your network, but they cannot be used as globally routable Internet addresses. NAT allows private devices to communicate with the Internet by translating their private addresses into a public address
+Router has 2 interfaces of public ip(WAN side) and private ips(LAN side, A router needs multiple IP addresses because each routed interface connects to a different network)
+                 Router
+            ┌──────────────┐
+Network A ──┤  G0/0        │ 192.168.1.1
+            │              │
+Network B ──┤  G0/1        │ 192.168.2.1
+            │              │
+Network C ──┤  G0/2        │ 192.168.3.1
+            │              │
+Internet ───┤  WAN         │ Public IP
+            └──────────────┘
+
+              INTERNET
+                  |
+          Router WAN: Public IP
+          Router LAN: 192.168.1.1
+                  |
+               Switch
+        ┌─────────┼─────────┐
+        |         |         |
+       PC       Phone       TV
+  192.168.1.10 192.168.1.11 192.168.1.12
+NAT in router modifies(translates) the request from the device (which as src ip as device private ip and dest ip as the website which it needs to access) to its own public ip address(src = router public ip, dest = website) 
+and maintains a NAT table:
+------------------------+-------------------------
+req from device(src ip) | req from router(src ip)
+------------------------+-------------------------
+192.168.1.10:50000      |  49.10.20.30:40001
+------------------------+-------------------------
+router looks to NAT table to forward the response from the website
+______________________________________________________________________________________________________
+MACOS NETWORK LAB
+1. Get private IP address of the Mac
+$ ipconfig getifaddr en0
+192.168.1.10
+
+2. Get default gateway / router IP
+$ route -n get default
+   route to: default
+destination: default
+       mask: default
+    gateway: 192.168.1.1
+  interface: en0
+      flags: <UP,GATEWAY,DONE,STATIC,PRCLONING,GLOBAL>
+ recvpipe  sendpipe  ssthresh  rtt,msec  rttvar  hopcount  mtu  expire
+        0         0         0         0       0         0  1500       0
+
+3. Get public IP address
+$ curl https://api.ipify.org
+49.205.178.64
+
+4. Trace Layer-3 hops to Google
+$ traceroute google.com
+traceroute to google.com (142.250.183.14), 64 hops max, 52 byte packets
+ 1  192.168.1.1 (192.168.1.1)  2.341 ms  1.984 ms  2.110 ms
+ 2  100.86.0.1 (100.86.0.1)    8.221 ms  7.913 ms  8.032 ms
+ 3  172.18.14.1 (172.18.14.1) 11.563 ms 11.204 ms 11.322 ms
+ 4  203.94.227.53             15.887 ms 15.612 ms 15.431 ms
+ 5  72.14.223.96              23.184 ms 22.991 ms 23.215 ms
+ 6  142.250.183.14            28.752 ms 28.544 ms 28.670 ms
+
+5. Display the Mac's routing table
+$ netstat -rn
+Routing tables
+Internet:
+Destination        Gateway            Flags     Netif Expire
+default            192.168.1.1        UGScg       en0
+127                127.0.0.1          UCS         lo0
+127.0.0.1          127.0.0.1          UH          lo0
+169.254            link#4             UCS         en0
+192.168.1          link#4             UCS         en0
+192.168.1.1        ac:84:c6:8d:11:20  UHLWIir     en0
+192.168.1.10       44:45:53:12:34:56  UHLWI       en0
+
+6. Display ARP table (IP address ↔ MAC address)
+$ arp -a
+? (192.168.1.1) at ac:84:c6:8d:11:20 on en0 ifscope [ethernet]
+? (192.168.1.12) at d8:3a:dd:42:91:7a on en0 ifscope [ethernet]
+? (192.168.1.15) at 30:5a:3a:8f:1c:99 on en0 ifscope [ethernet]
+? (192.168.1.25) at b8:27:eb:65:88:13 on en0 ifscope [ethernet]
+
+7. Display all network interfaces and their configuration
+$ ifconfig
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
+    inet 127.0.0.1 netmask 0xff000000
+    inet6 ::1 prefixlen 128
+en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+    ether 44:45:53:12:34:56
+    inet 192.168.1.10 netmask 0xffffff00 broadcast 192.168.1.255
+    inet6 fe80::1823:abcd:1234:5678%en0 prefixlen 64
+en1: flags=963<UP,BROADCAST,SMART,RUNNING> mtu 1500
+    ether 6a:22:9b:44:1f:aa
+awdl0: flags=8943<UP,BROADCAST,RUNNING,PROMISC,SIMPLEX,MULTICAST> mtu 1484
+    ether 4e:55:66:77:88:99
+utun0: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 1380
+    inet6 fe80::8c2d:abcd:1111:2222%utun0 prefixlen 64
+
+CONCEPT                 macOS COMMAND              LINUX COMMAND
+---------------------------------------------------------------------------
+Private IP              ipconfig getifaddr en0     ip addr
+Gateway                 route -n get default       ip route
+Public IP               curl api.ipify.org         curl api.ipify.org
+Traceroute              traceroute google.com      traceroute google.com
+Routing table           netstat -rn                ip route
+ARP table               arp -a                     ip neigh
+Interfaces              ifconfig                   ip link / ip addr
+_________________________________________________________________________________________________
 Subnet mask: to identify the network the host is on
 	ip address also comes with subnet mask(255.255.255.0 or 11111111.11111111.11111111.00000000)to identify the network the device is in, 1 stands for network bits, so all the bits in ip address which has 1 are considered as network address(i.e 192.168.1) and remaining is host address(i.e 10)
 192 . 168 . 1 . 10
