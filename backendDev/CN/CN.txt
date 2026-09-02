@@ -862,6 +862,13 @@ C:\>arp -a
 the device got mac address using arp protocol by sending broadcast to the network (whos got ip address xyz) then the xyz ip address holder replies with its mac address
 
 IPv4: IP version 4 represents the address of a device on network with dotted decimal notation(192.168.1.10) or binary notation (11000000.10101000.00000001.00001010)
+IPv4 protocol defines rules such as:
+• How an IP address is structured
+• How packets are formatted
+• How packets are addressed
+• How routers forward packets
+• How fragmentation works
+• How devices identify networks and hosts
 
 traceroute is used to trace the ip addresses of the packet route
 $ traceroute -4 google.com
@@ -1113,6 +1120,7 @@ Subnet mask: to identify the network the host is on
 192 . 168 . 1 . 10
 └─────────────┘└──┘
     network    host
+
 CIDR(Classless Inter domain routing)/prefix notation: 192.168.1.10/24 (it represents 24 as bits for network) 
 /8   = 255.0.0.0
 /16  = 255.255.0.0
@@ -1170,6 +1178,7 @@ IPv4 multicast range: 224.0.0.0 – 239.255.255.255
 Example: 192.168.1.10 → 224.0.0.1
 Only devices that have joined the multicast group receive the traffic.
 Historically called Class D.
+$ netstat -g    //to check the multicast groups
 
 4. ANYCAST: One sender → One destination selected from multiple devices
 Usually the nearest/best destination according to routing.
@@ -1193,7 +1202,6 @@ BROADCAST: One → All hosts in local broadcast domain
 MULTICAST: One → Specific group
 ANYCAST: One → One of many equivalent destinations
 __________________________________________________________________________________________________________________________
-
 IPv6: addressed shortage of the network addresses by using 128-bit hexadecimal value 
 8 fields with colon separated 4 alpha numeric characters
 Eg: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
@@ -1204,8 +1212,8 @@ IPv6 PACKET
   +----+--------------+----------------------+
   |Ver | Traffic Class|    Flow Label        |
   +----+--------------+----------------------+
-  |        Payload Length      | Nxt |  Hop  |
-  +----------------------------+-----+-------+
+  |     Payload Length  | Nxt header |  Hop  |
+  +---------------------+------------+-------+
   |                                          |
   |            Source IPv6 Address           |
   |                                          |
@@ -1228,7 +1236,7 @@ Next Header          → Identifies next header/protocol
 Hop Limit            → Limits packet lifetime/hops
 Source Address       → Sender's 128-bit IPv6 address
 Destination Address  → Receiver's 128-bit IPv6 address
-Extension Headers    → Optional features such as routing/security\
+Extension Headers    → Optional features such as routing/security
 Data                 → TCP/UDP segment or other payload
 
 IPv6 base header:
@@ -1237,11 +1245,29 @@ Fixed = 40 bytes
 To shorten the IPv6 addresses there is 2 rules
 2001:0db8:85a3:0000:0000:8a2e:0370:7334
 IPv6 TRIMMING RULES
-1. Remove leading zeros from each block: 2001:0db8:85a3:0000:0000:8a2e:0370:7334 → 2001:db8:85a3:0:0:8a2e:370:7334
+1. Remove leading zeros from each block: 2001:0db8:85a3:0000:0000:8a2e:0370:7334 → 2001:db8:85a3:0:0:8a2e:370:7334, even if ..x:0000:y... --> ..x:0:y... 
 2. Replace consecutive zero blocks with :: 2001:db8:85a3:0:0:8a2e:370:7334 → 2001:db8:85a3::8a2e:370:7334
 3. Use :: only once: 2001:db8:85a3::8a2e:370:7334 → Valid; 2001::db8::8a2e → Invalid
 4. :: represents one or more complete 16-bit zero blocks: 2001:db8:85a3::8a2e:370:7334 → 2001:0db8:85a3:0000:0000:8a2e:0370:7334
 5. Do not remove zeros from the middle of a block: 2001:0db8:85a3:0000:0000:8a2e:0370:7334 → 2001:db8:85a3:0:0:8a2e:370:7334
 6. Compress the longest consecutive zero sequence: 2001:0db8:85a3:0000:0000:8a2e:0370:7334 → 2001:db8:85a3::8a2e:370:7334
 
-Same subnet mask will apply in ipv6 2001:db8:85a3::1/64
+Same subnet mask will apply in ipv6
+eg: 2001:db8:1234::/48
+2001:0db8:1234:0000:0000:0000:0000:0000
+|-------------|------------------------|
+     /48               80 bits
+    Network          remaining bits
+A very common design is to use /64 for each subnet.
+2001:db8:1234:0000::/64
+2001:db8:1234:0001::/64
+2001:db8:1234:0002::/64
+2001:db8:1234:0003::/64
+...
+2001:db8:1234:ffff::/64
+/48 → /64
+64 - 48 = 16
+2^16 = 65,536 subnets
+and Each /64: 2^64 addresses
+There is no broadcast address in IPv6(so no -2). IPv6 uses multicast for functions that IPv4 often handled with broadcast.
+and ipv4 takes the first address as network address and not assigns to any device but ipv6 donot do that, The /64 itself tells you which prefix/subnet the address belongs to
