@@ -1271,3 +1271,30 @@ A very common design is to use /64 for each subnet.
 and Each /64: 2^64 addresses
 There is no broadcast address in IPv6(so no -2). IPv6 uses multicast for functions that IPv4 often handled with broadcast.
 and ipv4 takes the first address as network address and not assigns to any device but ipv6 donot do that, The /64 itself tells you which prefix/subnet the address belongs to
+
+A link-local address is an IP address that a device automatically uses to communicate with other devices on the same local network/link, even when there is no router or DHCP server.
+This is the multicast group representing all IPv6 nodes on this local link. just like broadcast of IPv4, but to broadcast to every device we can use ff02::1 to send to all ipv6 devices
+Because multicast is more flexible.
+IPv6 can have different groups:
+ff02::1     → All IPv6 nodes
+ff02::2     → All IPv6 routers
+ff02::5     → OSPF routers
+ff02::6     → OSPF designated routers
+
+IPv6 link-local addresses always start with - FE80::   eg: fe80::a12b:34ff:fe56:7890
+in IPv4 router running DHCP server requires to assign private ip address for the devices connected locally, 
+In IPv6 we require 2 IPv6 enabled devices only, But if you want the device to communicate beyond that local link we need router, a link-local address alone isn't enough.
+The router normally advertises an IPv6 prefix using Router Advertisements (RA), allowing the host to configure a global/unique-local address using SLAAC, and DHCPv6 may optionally provide additional configuration.
+An IPv6 device can have multiple IPv6 addresses on the same interface, and one of them will normally be a link-local address
+en0
+ ├── fe80::1234:5678:abcd:1111     ← Link-local
+ ├── 2001:db8:1234:1::10           ← Global unicast
+ └── 2001:db8:1234:1::20           ← Another IPv6 address
+
+Local-link address - Local-link communication, Neighbor Discovery, Router communication, Default gateway
+Global unicast ipv6 address - Communication beyond the local link
+One interface(eg: G0/0) → multiple IPv6 addresses, which can be useful for multiple prefixes/services/scopes on that link.
+IPv6 with port number - [2001:db8:1:1::10]:443
+IPv6 anycast - same address is assigned to different device, so that any device can be communicated, eg: load balancing in server - the request froom the browser is sent to a any server which follows the algorithm(Round robin, nearest dist...) to process request
+IPv6 multicast - one sender to group of receivers who joined multicast group
+IPv6 Unique Local Address(ULA) - private ip address space in IPv6 addressings, but unlike IPv4 they are unique 
