@@ -1468,6 +1468,28 @@ to solve this broadcasting issue VLAN creates different virtual LAN (a subnet)
 - Voice VLAN → allows an IP phone and PC to use the same switch port.
 - SVI = Switched Virtual Interface, An SVI provides the Layer-3 gateway for a VLAN.
 
+Channel Group : A group of physical switch interfaces bundled together and treated as one logical interface, called a Port-Channel or EtherChannel.
+Purpose : Combines multiple physical links into one logical link to increase bandwidth and provide redundancy.
+Example : G0/1 + G0/2 + G0/3 → Port-Channel 1
+Without Channel Group : Each link is treated separately.
+With Channel Group : Multiple links operate as one logical connection.
+LACP(Link Aggregation Control Protocol) : Standard protocol used to dynamically form and manage an EtherChannel.
+PAgP(Port Aggregation Protocol) : Cisco-proprietary protocol for EtherChannel negotiation.
+Port-Channel : The logical interface created from the physical interfaces.
+Example : interface range g0/1-3 → channel-group 1 mode active → creates/joins Port-Channel 1 using LACP.
+
+VTP : VLAN Trunking Protocol; a Cisco-proprietary Layer 2 protocol used to distribute VLAN configuration information between switches.
+Purpose : Allows VLANs created, modified, or deleted on one switch to be propagated to other switches in the same VTP domain.
+VTP Server : Creates, modifies, and deletes VLANs and advertises the VLAN information.
+VTP Client : Receives VLAN information from the VTP server and uses it; traditionally cannot create VLANs locally.
+VTP Transparent : Does not synchronize its VLAN database with VTP; maintains its own VLAN configuration but can forward VTP advertisements.
+VTP Domain : Logical group of switches that share VTP VLAN information.
+VTP Advertisement : Messages sent between VTP-enabled switches to communicate VLAN information.
+Requirement : VTP advertisements travel over trunk links.
+Key Idea : VTP = automatically synchronize VLAN configuration between Cisco switches.
+Example : Switch A creates VLAN 10 → VTP advertises VLAN 10 → Switch B learns VLAN 10.
+Risk : Incorrect VTP configuration can propagate unwanted VLAN changes across many switches, so VTP should be used carefully.
+
 VRF = Virtual Routing and Forwarding
 - Separates Layer 3 routing tables on a router/L3 device.
 - Each VRF has its own independent routing table.
@@ -1502,3 +1524,11 @@ ROUTER WITH VRF:
         │      │      │
    10.0.1.1 10.0.2.1 10.0.1.1
 G0/0 and G0/2 can both use 10.0.1.1 because they belong to different VRFs.
+______________________________________________________________________________________________
+LLDP - Link Layer Discovery Protocol; IEEE 802.1AB vendor-neutral Layer 2 protocol used to discover directly connected network devices.
+CDP - Cisco Discovery Protocol; Cisco-proprietary Layer 2 protocol used to discover directly connected Cisco devices.
+Both advertise device/interface information to neighboring devices for network discovery and troubleshooting. By default its running
+Information Learned : Device identity, device type, local interface, neighboring interface, and other capabilities/configuration details.
+Example : Switch A can use CDP/LLDP to learn that Switch B is connected to its G0/1 port.
+CDP Command : show cdp neighbors
+LLDP Command : show lldp neighbors
