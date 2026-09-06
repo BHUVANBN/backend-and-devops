@@ -1377,3 +1377,50 @@ WPA-Enterprise:
 - Usually uses 802.1X + EAP + RADIUS.
 Example:
 Device → EAP → Access Point → RADIUS Server → Accept/Reject
+______________________________________________________________________________________________
+VLAN = Virtual Local Area Network
+- Separates Layer 2 networks on a switch.
+- Each VLAN is a separate broadcast domain.
+- Example:
+  VLAN 10 → 192.168.10.0/24
+  VLAN 20 → 192.168.20.0/24
+- Devices in different VLANs need Layer 3 routing to communicate.
+- Access port → normally one VLAN.
+- Trunk port → carries multiple VLANs.
+layer 2 switch learns the mac address of the device participating but when it encounters destination mac address as ffff.ffff.ffff or unknown mac address(not in the table of switch) it broadcast the data to every remaining ports
+to solve this broadcasting issue VLAN creates different virtual LAN (a subnet)
+
+VRF = Virtual Routing and Forwarding
+- Separates Layer 3 routing tables on a router/L3 device.
+- Each VRF has its own independent routing table.
+- The same IP subnet can exist in different VRFs without conflict.
+- Example:
+  VRF-A → 10.0.0.0/24
+  VRF-B → 10.0.0.0/24
+  Both can coexist because they use separate routing tables.
+CORE DIFFERENCE:
+VLAN → Layer 2 isolation
+VRF  → Layer 3 routing-table isolation
+SUMMARY:
+VLAN = separate networks on a switch.
+VRF = separate routing tables on a router.
+ROUTER WITHOUT VRF:
+             Router
+        ┌──────┼──────┐
+        │      │      │
+      G0/0   G0/1   G0/2
+        │      │      │
+   10.0.1.1 10.0.2.1 10.0.3.1
+        │      │      │
+    Network A B      C
+All interfaces use the same routing table.
+ROUTER WITH VRF:
+             Router
+        ┌──────┼──────┐
+        │      │      │
+      G0/0   G0/1   G0/2
+        │      │      │
+     VRF-A   VRF-A   VRF-B
+        │      │      │
+   10.0.1.1 10.0.2.1 10.0.1.1
+G0/0 and G0/2 can both use 10.0.1.1 because they belong to different VRFs.
