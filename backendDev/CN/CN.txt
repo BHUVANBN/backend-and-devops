@@ -1386,9 +1386,87 @@ VLAN = Virtual Local Area Network
   VLAN 20 → 192.168.20.0/24
 - Devices in different VLANs need Layer 3 routing to communicate.
 - Access port → normally one VLAN.
-- Trunk port → carries multiple VLANs.
-layer 2 switch learns the mac address of the device participating but when it encounters destination mac address as ffff.ffff.ffff or unknown mac address(not in the table of switch) it broadcast the data to every remaining ports
+- Trunk port → carries multiple VLANs, link that carries multiple VLANs between switches/Layer-3 devices.
+Standard: 802.1Q (dot1q), 802.1Q adds a VLAN tag containing the VLAN ID to frames crossing the trunk.
+Example:
+Switch A ================= Switch B
+           802.1Q trunk
+           VLAN 10,20,100
+
+TRUNK TYPES / CONFIGURATION MODES
+1. STATIC TRUNK : Manually force the port to be a trunk.
+Command: switchport mode trunk
+Use:
+  Switch A ================= Switch B
+                s TRUNK
+              VLAN 10,20,30
+Both sides are explicitly configured as trunks.
+Why use it:
+- Predictable
+- No negotiation required
+- Common choice when you want explicit configuration
+
+2. DYNAMIC DESIRABLE : The port actively tries to negotiate a trunk.
+Command: switchport mode dynamic desirable
+Meaning: "I want this link to become a trunk."
+Example:
+  Switch A                         Switch B
+  desirable  ────────────────────  auto
+  "I want trunk."                  "I'll accept."
+Result: TRUNK
+
+3. DYNAMIC AUTO : The port is willing to become a trunk, but does NOT actively ask.
+Command: switchport mode dynamic auto
+Meaning: "I'll become a trunk if the other side asks."
+Example:
+  Switch A                         Switch B
+  desirable  ────────────────────  auto
+  "I want trunk."                  "Okay."
+Result: TRUNK
+But:
+  auto ───────────────────────── auto
+  "I'll wait."                     "I'll wait." 
+Result: NO TRUNK
+
+DTP : Dynamic Trunking Protocol; a Cisco protocol used by switches to automatically negotiate whether a link should become a trunk.
+4. NONEGOTIATE : Disables DTP negotiation.
+Command:
+  switchport mode trunk
+  switchport nonegotiate
+Meaning: "I am a trunk. Don't negotiate with the other side."
+The other side must also be manually configured as a trunk.
+Example:
+  Switch A                         Switch B
+  trunk + nonegotiate ─────────── trunk + nonegotiate
+Result: TRUNK
+
+Summary
+trunk              → Force trunk
+dynamic desirable  → Actively tries to become trunk
+dynamic auto       → Waits for the other side
+nonegotiate        → No DTP negotiation
+
+DTP COMBINATIONS
+trunk + trunk              → TRUNK
+trunk + auto               → TRUNK
+desirable + desirable      → TRUNK
+desirable + auto           → TRUNK
+auto + auto                → NO TRUNK
+These are NOT different types of VLAN trunk protocols.
+They are different ways of configuring/negotiating a trunk port.
+The actual trunking standard discussed here is: 802.1Q (IEEE 802.1Q)
+
+802.1Q = how VLAN information is carried across the trunk.
+DTP = how Cisco switches can negotiate whether the link becomes a trunk.
+Native VLAN:
+One VLAN on an 802.1Q trunk is normally untagged called the native VLAN.
+VLAN 1 is commonly the default native VLAN.
+Native VLAN handling has security implications, including VLAN-hopping concerns.
+- layer 2 switch learns the mac address of the device participating but when it encounters destination mac address as ffff.ffff.ffff or unknown mac address(not in the table of switch) it broadcast the data to every remaining ports
 to solve this broadcasting issue VLAN creates different virtual LAN (a subnet)
+- Different VLANs cannot communicate directly at Layer 2, A router or Layer-3/multilayer switch is required.
+- Voice VLAN → allows an IP phone and PC to use the same switch port.
+- SVI = Switched Virtual Interface, An SVI provides the Layer-3 gateway for a VLAN.
 
 VRF = Virtual Routing and Forwarding
 - Separates Layer 3 routing tables on a router/L3 device.
