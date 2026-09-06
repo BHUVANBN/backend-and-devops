@@ -165,7 +165,7 @@ Multi mode fibre - allows multiple light source to carry data without collision
 Connectors: many connectors in fibres, eg: LC (Lucent Connector), SC (Subscriber Connector), ST (Straight Tip), FC (Ferrule Connector), MPO/MTP (Multi-Fiber Push-On)
 
 CSMA/CD(carrier sense multiple access collision detection): rule used in wired ethernet, first sense weather if the ethernet is free or not and then send the data, if collision occurs it waits for some time to be free
-CSMA/CA(carrier sense multiple access collision avoidance): avoid collision by assigns time slots or token to device to communicate 
+CSMA/CA(carrier sense multiple access collision avoidance): avoid collision by assigns time slots or token to device to communicate, eg : wifi
 _________________________________________________________________________________________________________________________________________________
 IOS - Internetwork operating system of the CISCO networking devices
 Console cable is used to connect to the device and configure it with initial configuration 
@@ -1298,3 +1298,82 @@ IPv6 with port number - [2001:db8:1:1::10]:443
 IPv6 anycast - same address is assigned to different device, so that any device can be communicated, eg: load balancing in server - the request froom the browser is sent to a any server which follows the algorithm(Round robin, nearest dist...) to process request
 IPv6 multicast - one sender to group of receivers who joined multicast group
 IPv6 Unique Local Address(ULA) - private ip address space in IPv6 addressings, but unlike IPv4 they are unique 
+__________________________________________________________________________________________________________________________
+Datalink Layer protocol:
+
+Wifi (wireless fidelity) / 802.11
+wireless networking uses Radio Frequencies ranging from 10Hz to 10GHz, Eg: Microwave, Rader, FM radio, 5GHz wireless and 2.4GHz wireless
+2.4 GHz band - 2.400 to 2.4835 GHz --> 14 channels but creates interference between channel other thasn 1,6 and 11
+5 GHz band - 5.150 to 5.825 GHz --> 25 non-overlapping channels, but doesnot go through walls and not travel far distance
+uses CSMA/CA
+
+HOW WI-FI SPEED INCREASED
+Wi-Fi speed increased mainly by improving how many bits can be
+transmitted in each unit of time.
+1. MORE BANDWIDTH
+   Wider channels → more data can be transmitted at once.
+   20 MHz → 40 MHz → 80 MHz → 160 MHz
+2. HIGHER-ORDER MODULATION
+   More signal states → more bits per symbol.
+   64-QAM   → 6 bits/symbol
+   256-QAM  → 8 bits/symbol
+   1024-QAM → 10 bits/symbol
+3. MORE SPATIAL STREAMS (MIMO)
+   Multiple antennas → multiple data streams simultaneously.
+   1 stream → 1 data stream
+   4 streams → 4 data streams
+4. OFDM / OFDMA
+   Data is divided across many smaller subcarriers,
+   allowing efficient parallel transmission.
+5. BETTER FREQUENCY BANDS
+   5 GHz and 6 GHz provide more available spectrum
+   and wider channels than 2.4 GHz.
+6. IMPROVED WI-FI GENERATIONS
+   Wi-Fi 4 → 802.11n
+   Wi-Fi 5 → 802.11ac
+   Wi-Fi 6 → 802.11ax
+   Wi-Fi 6E → 802.11ax + 6 GHz
+   Wi-Fi 7 → 802.11be
+
+Wi-Fi Security
+├── Authentication
+│      └── EAP / EAP-TLS / PEAP / etc.
+└── Encryption
+       └── WEP / WPA / WPA2 / WPA3
+WEP → RC4 + weak 24-bit IV → Broken
+WPA → TKIP + RC4 → Improved over WEP, but now obsolete
+WPA2 → AES-CCMP → Strong and widely used
+WPA3 → SAE + stronger modern security → Newer standard
+
+WEP - WEP (Wired Equivalent Privacy) is an old Wi-Fi security protocol used to protect wireless communication
+  WEP uses an IV (Initialization Vector) with the secret key to produce the keystream used for encryption.
+  The problem is that WEP uses a very small 24-bit IV, and IVs can repeat. Combined with weaknesses in the protocol and RC4 usage, attackers can collect enough traffic to recover the WEP key.
+
+802.1x/EAP - EAP = Extensible Authentication Protocol.
+It is a framework for authentication, mainly used in network access such as Wi-Fi enterprise security and wired 802.1X.
+Username: alice
+Password: ********
+       ↓
+      EAP
+       ↓
+Authentication Server
+       ↓
+   ACCEPT / REJECT
+
+WPA - Wifi Protected Access
+Has Personal(uses shared secret password) and Enterprise mode(uses EAP)
+main purpose:
+- Authenticate users/devices.
+- Encrypt wireless data.
+- Protect Wi-Fi communication from attackers.
+WPA-Personal:
+- Uses a shared Wi-Fi password.
+- Common in homes.
+Example:
+Wi-Fi password → Device → WPA authentication → Connection
+WPA-Enterprise:
+- Uses individual authentication.
+- Common in companies/colleges.
+- Usually uses 802.1X + EAP + RADIUS.
+Example:
+Device → EAP → Access Point → RADIUS Server → Accept/Reject
