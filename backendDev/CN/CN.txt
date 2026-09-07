@@ -1388,6 +1388,14 @@ SSID : Name of the wireless network users see.
 BSSID : MAC address identifying a particular AP/radio interface.
 RF : Radio frequency used to transmit Wi-Fi signals.
 
+WLAN security :
+WEP : Old and insecure.
+WPA : Replacement for WEP; obsolete.
+WPA2 : Common, uses AES-CCMP.
+WPA3 : Newer and stronger security.
+Personal : Shared Wi-Fi password.
+Enterprise : Individual authentication using 802.1X/EAP, commonly with RADIUS.
+
 AP : Access Point; a device that connects wireless clients to a wired network using Wi-Fi.
 Phone/Laptop
      │
