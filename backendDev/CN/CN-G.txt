@@ -1,0 +1,12 @@
+Computer network - A telecommunication framework that allows digital devices to communicate, Computer connected together
+Internet - collection of Computer Networks
+______________________________________________________________________________________________
+Data communication requires 5 components - Message, Sender, Receiver, Transmission medium, Protocol 
+Effectiveness of the data commuication - Delivery to dest, Accuracy of data, Timeliness, Jitter(delay between packet arrival time)
+Transmission mode Categories - 
+  simplex(one way commuication eg: radio), 
+  Half Duplex(two way commuication but one at a time, eg: walkie talkie), 
+  Full duplex(tow way communication at same time)
+Network criterias - Performance, reliability, Security
+Types of connection - Point to Point, Multipoint
+Physical Topologies - Bus, Ring, Star(used in organizations), Tree, Mesh, Hybrid 

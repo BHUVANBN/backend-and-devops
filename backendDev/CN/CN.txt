@@ -1,6 +1,6 @@
 Computer Networking: Devices, Architecture/model, Protocols
 
-Computer network - Computer connected together
+Computer network - A telecommunication framework that allows digital devices to communicate, Computer connected together
 Internet - collection of Computer Networks
 
 History:
@@ -1377,6 +1377,44 @@ WPA-Enterprise:
 - Usually uses 802.1X + EAP + RADIUS.
 Example:
 Device → EAP → Access Point → RADIUS Server → Accept/Reject
+
+wlan : Wireless Local Area Network; a network that connects devices wirelessly within a limited area using Wi-Fi (IEEE 802.11).
+WLAN components :
+Wireless Client : Laptop, phone, tablet, etc.
+AP (Access Point) : Provides wireless connectivity and connects clients to the wired network.
+WLC (Wireless LAN Controller) : Centrally manages multiple APs.
+Wireless Router : Usually combines AP + switch + router + NAT in home networks.
+SSID : Name of the wireless network users see.
+BSSID : MAC address identifying a particular AP/radio interface.
+RF : Radio frequency used to transmit Wi-Fi signals.
+
+AP : Access Point; a device that connects wireless clients to a wired network using Wi-Fi.
+Phone/Laptop
+     │
+   Wi-Fi
+     │
+    AP
+     │
+ Ethernet
+     │
+  Switch
+     │
+  Network
+
+AP TYPES:
+Autonomous AP : Standalone AP configured and managed individually.
+Lightweight AP : AP controlled by a Wireless LAN Controller (WLC).
+Cloud-Managed AP : AP configured and managed through a cloud platform.
+
+AP MODES:
+Local Mode : Normal AP mode; provides wireless client access and forwards traffic through the wired network.
+FlexConnect Mode : AP can provide local switching and can continue operating when the WLC connection is unavailable.
+Monitor Mode : AP does not provide normal client access; monitors the wireless environment.
+Sniffer Mode : Captures wireless frames and sends them to a device for analysis.
+Rogue Detector Mode : Detects unauthorized/rogue APs by monitoring the network.
+Bridge Mode : AP connects two wired networks over a wireless link.
+Mesh Mode : AP uses wireless backhaul to connect to another AP instead of requiring a wired connection.
+
 ______________________________________________________________________________________________
 VLAN = Virtual Local Area Network
 - Separates Layer 2 networks on a switch.
@@ -1532,3 +1570,75 @@ Information Learned : Device identity, device type, local interface, neighboring
 Example : Switch A can use CDP/LLDP to learn that Switch B is connected to its G0/1 port.
 CDP Command : show cdp neighbors
 LLDP Command : show lldp neighbors
+
+STP : Spanning Tree Protocol; prevents Layer 2 loops caused by redundant links.
+WHY STP?
+PC ── SW1 ── SW2
+       ╲──────╱
+      Redundant path
+           ↓
+      Broadcast can loop
+           ↓
+     Broadcast Storm
+
+STP SOLUTION:
+             SW1
+            /   \
+          SW2───SW3
+           ↑
+      Redundant link
+        is blocked
+
+STP keeps one path forwarding and blocks the redundant path.
+If the active link fails, STP can activate the blocked path.
+
+ROOT BRIDGE : The switch elected as the central reference point for STP.
+Root Port : Best path from a non-root switch to the root bridge; forwards traffic.
+Designated Port : Forwarding port selected for each network segment.
+Nondesignated Port : Blocking port used to prevent loops.
+
+Example:
+           SW1  ROOT
+          /   \
+        FWD   FWD
+        /       \
+      SW2───────SW3
+          BLOCK
+
+STP STATES : Disabled → Blocking → Listening → Learning → Forwarding
+Blocking : Does not forward normal traffic.
+Listening : Processes STP information before forwarding.
+Learning : Learns MAC addresses before forwarding.
+Forwarding : Forwards traffic normally.
+
+STP VERSIONS:
+STP : Classic STP; IEEE 802.1D; slower convergence.
+PVST+ : Cisco; separate STP topology for each VLAN.
+RSTP : Rapid STP; IEEE 802.1w; much faster convergence.
+Rapid-PVST+ : Cisco; RSTP running separately per VLAN.
+MST : Multiple Spanning Tree; IEEE 802.1s; groups VLANs into STP instances.
+
+ROOT ELECTION:
+Lowest Bridge ID → Root Bridge
+Bridge ID = Priority + MAC Address
+Lower priority wins.
+If priority is equal → lower MAC address wins.
+
+IMPORTANT COMMANDS:
+show spanning-tree : View STP status, root bridge, port roles and states.
+spanning-tree mode rapid-pvst : Enable Rapid-PVST+.
+spanning-tree vlan 10 root primary : Make the switch preferred root for VLAN 10.
+
+STP SECURITY/ENHANCEMENTS:
+BPDU : STP control message exchanged between switches.
+BPDU Guard : Protects edge ports from unexpected BPDUs.
+Root Guard : Prevents another switch from becoming the root.
+PortFast : Allows end-device ports to reach forwarding quickly.
+Loop Guard : Prevents a blocked port from incorrectly becoming forwarding.
+BPDU Filtering : Suppresses BPDUs; dangerous if incorrectly configured.
+
+CORE IDEA:
+Redundant links = reliability
+Redundant links + no STP = loops
+STP = prevents loops while keeping backup paths available.
+__________________________________________________________________________________________________________________________
