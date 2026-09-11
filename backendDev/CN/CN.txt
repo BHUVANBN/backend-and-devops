@@ -1299,6 +1299,22 @@ IPv6 anycast - same address is assigned to different device, so that any device 
 IPv6 multicast - one sender to group of receivers who joined multicast group
 IPv6 Unique Local Address(ULA) - private ip address space in IPv6 addressings, but unlike IPv4 they are unique 
 __________________________________________________________________________________________________________________________
+Routing tables and protocols:
+Router# show ip route       //cmd to show routing table in router
+Codes: C - connected, S - static, R - RIP, O - OSPF, D - EIGRP
+       L - local, * - candidate default
+Gateway of last resort is 192.168.1.1 to network 0.0.0.0
+     10.0.0.0/24 is subnetted, 2 subnets
+C       10.0.10.0/24 is directly connected, GigabitEthernet0/0
+L       10.0.10.1/32 is directly connected, GigabitEthernet0/0
+O       10.0.20.0/24 [110/2] via 192.168.1.2, 00:00:15, GigabitEthernet0/1
+S*      0.0.0.0/0 [1/0] via 192.168.1.1
+
+C = Connected : Network is directly connected to the router.
+L = Local : The router's own interface IP address.
+O = OSPF : Route learned through OSPF.
+S = Static : Manually configured route.
+__________________________________________________________________________________________________________________________
 Datalink Layer protocol:
 
 Wifi (wireless fidelity) / 802.11
@@ -1649,4 +1665,10 @@ CORE IDEA:
 Redundant links = reliability
 Redundant links + no STP = loops
 STP = prevents loops while keeping backup paths available.
+__________________________________________________________________________________________________________________________
+Network Management Connections 
+Telnet - sends data in clear text , not secure
+SSH - Secure Shell, encrypted data
+http
+https - ecrypted, secure connection
 __________________________________________________________________________________________________________________________
